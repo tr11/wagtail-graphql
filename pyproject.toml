@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "wagtail-graphql"
+version = "0.1.0"
+description = ""
+authors = [
+    "Tiago Requeijo <tiago.requeijo.dev@gmail.com>"
+]
+
+[tool.poetry.dependencies]
+python = "~3.6||~3.7"
+graphene_django = "^2.2"
+graphene_django_optimizer = "^0.3.5"
+wagtail = "^2.3"
+wagtailmenus = {version = "^2.12", optional = true}
+
+[tool.poetry.extras]
+menus = ["wagtailmenus"]
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
