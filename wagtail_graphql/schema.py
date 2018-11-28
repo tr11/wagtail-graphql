@@ -527,6 +527,11 @@ if HAS_WAGTAILMENUS:
 
 
 BLOCK_HANDLERS = {
+    # classes
+    ImageChooserBlock: (lambda x: Image, _resolve_image),
+    PageChooserBlock: (lambda x: PageInterface, _resolve_page),
+    SnippetChooserBlock: (_snippet_handler, _snippet_resolve),
+    # names
     "wagtail.images.blocks.ImageChooserBlock": (lambda x: Image, _resolve_image),
     "wagtail.core.blocks.field_block.PageChooserBlock": (lambda x: PageInterface, _resolve_page),
     "wagtail.snippets.blocks.SnippetChooserBlock": (_snippet_handler, _snippet_resolve),
