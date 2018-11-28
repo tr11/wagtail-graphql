@@ -18,7 +18,7 @@ import graphene_django_optimizer as gql_optimizer
 from graphql.language.ast import InlineFragment
 from graphql.execution.base import ResolveInfo
 # wagtail
-from wagtail.core.blocks import PageChooserBlock, ListBlock
+from wagtail.core.blocks import PageChooserBlock, ListBlock, StructBlock
 from wagtail.core.fields import StreamField
 from wagtail.core.models import Page as wagtailPage, Site as wagtailSite
 from wagtail.core.utils import camelcase_to_underscore
@@ -103,16 +103,24 @@ def _create_stream_field_type(stream_field_name, field_name, block_type_handlers
 
 
 def _is_compound_block(block):
-    return hasattr(block, "declared_blocks")
+    return isinstance(block, StructBlock)
 
 
 def _is_list_block(block):
     return isinstance(block, ListBlock)
 
 
-def _resolve(n):
-    def _resolve_inner(x, info: ResolveInfo):
-        return x[n]
+def _resolve(n, hdl):
+    if isinstance(hdl, tuple):
+        res = hdl[1]
+        def _resolve_inner(x, info: ResolveInfo):
+            return res(x[n], info)
+    else:
+        def _resolve_inner(x, info: ResolveInfo):
+            data = x[n]
+            if isinstance(data, dict):
+                return info.return_type.graphene_type(**x[n])
+            return x[n]
     return _resolve_inner
 
 
@@ -124,43 +132,52 @@ def _add_handler_resolves(dict_params, block):
                 val = v[0]
             else:
                 val = v[0](block)
-            dict_params[k] = graphene.Field(val)
             to_add['resolve_' + k] = v[1]
+        else:
+            val = v
+        dict_params[k] = graphene.Field(val)
     dict_params.update(to_add)
 
 
-def _handler(name, block, app, prefix=''):
-    cls = block.__class__
-    handler = BLOCK_HANDLERS.get(cls)
+def _class_full_name(cls):
+    return cls.__module__ + "." + cls.__qualname__
 
+
+def _handler(block, app, prefix=''):
+    cls = block.__class__
+    clsname = _class_full_name(cls)
+
+    handler = BLOCK_HANDLERS.get(clsname)
     if handler is None:
         if _is_compound_block(block):
             node = prefix + cls.__name__
             dict_params = dict(
-                (n, _handler(n, block_type, app, prefix))
+                (n, _handler(block_type, app, prefix))
                 for n, block_type in block.declared_blocks.items()
             )
             _add_handler_resolves(dict_params, block)
             tp = type(node, (graphene.ObjectType,), dict_params)
             handler = tp
         elif _is_list_block(block):
-            node = prefix + cls.__name__
             h = BLOCK_HANDLERS.get(block.child_block.__class__)
             if h is not None:
                 if isinstance(h, tuple):
                     this_handler = h[0](block.child_block)
                     handler = List(this_handler), _resolve_list
                 else:
-                    this_handler = _handler(node, h, app, prefix)
+                    this_handler = _handler(h, app, prefix)
                     handler = List(this_handler)
             else:
-                child_node = block.child_block.__class__.__name__
-                this_handler = _handler(child_node, block.child_block, app, prefix)
+                this_handler = _handler(block.child_block, app, prefix)
                 for n, block_type in block.child_block.declared_blocks.items():
-                    setattr(this_handler, "resolve_" + n, _resolve(n))
+                    inner_handler = _handler(block_type, app, prefix)
+                    setattr(this_handler, "resolve_" + n, _resolve(n, inner_handler))
                 handler = List(this_handler)
-        elif handler is None:
-            handler = GenericScalar()
+        else:
+            handler = GenericScalar
+
+        if issubclass(cls, StructBlock):
+            BLOCK_HANDLERS[clsname] = handler
 
     return handler
 
@@ -203,7 +220,6 @@ def add_app(app, prefix='{app}', exclude_models=tuple()):
 
         prefix = prefix.format(app=string.capwords(app),
                                cls=cls.__name__)
-        uid = app + "." + cls.__name__
         node = prefix + cls.__name__
 
         class Meta:
@@ -221,7 +237,6 @@ def add_app(app, prefix='{app}', exclude_models=tuple()):
                     (
                         name,
                         _handler(
-                            stream_field_name + string.capwords(name, sep='_').replace('_', '') + "Block",
                             block,
                             app,
                             prefix
@@ -341,7 +356,10 @@ class PageInterface(graphene.Interface):
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
 
     @classmethod
-    def resolve_type(cls, instance, context):
+    def resolve_type(cls, instance, info: ResolveInfo):
+        if isinstance(instance, int):
+            return PAGE_MODELS[type(wagtailPage.objects.filter(id=instance).specific().first())]
+
         model = PAGE_MODELS[instance.content_type.model_class()]
         return model
 
@@ -443,6 +461,8 @@ def _snippet_handler(block):
 
 
 def _snippet_resolve(self, info: ResolveInfo):
+    if self is None:
+        return None
     id_ = getattr(self, info.field_name)
     cls = info.return_type.graphene_type._meta.model
     obj = cls.objects.filter(id=id_).first()
@@ -450,16 +470,22 @@ def _snippet_resolve(self, info: ResolveInfo):
 
 
 def _resolve_image(self, info: ResolveInfo):
+    if self is None:
+        return None
     id_ = getattr(self, info.field_name)
     return wagtailImage.objects.filter(id=id_).first()
 
 
 def _resolve_page(self, info: ResolveInfo):
-    id_ = getattr(self, info.field_name)
+    if self is None:
+        return None
+    id_ = self if isinstance(self, int) else getattr(self, info.field_name)
     return wagtailPage.objects.filter(id=id_).specific().first()
 
 
 def _resolve_list(self, info: ResolveInfo):
+    if self is None:
+        return None
     ids = getattr(self, info.field_name)
     cls = info.return_type.of_type.graphene_type._meta.model
     objs = dict((x.id, x) for x in cls.objects.filter(id__in=ids).all())
@@ -501,9 +527,9 @@ if HAS_WAGTAILMENUS:
 
 
 BLOCK_HANDLERS = {
-    ImageChooserBlock: (lambda x: Image, _resolve_image),
-    PageChooserBlock: (lambda x: PageInterface, _resolve_page),
-    SnippetChooserBlock: (_snippet_handler, _snippet_resolve),
+    "wagtail.images.blocks.ImageChooserBlock": (lambda x: Image, _resolve_image),
+    "wagtail.core.blocks.field_block.PageChooserBlock": (lambda x: PageInterface, _resolve_page),
+    "wagtail.snippets.blocks.SnippetChooserBlock": (_snippet_handler, _snippet_resolve),
 }
 SETTINGS = settings.GRAPHQL_API
 URL_PREFIX = SETTINGS.get('URL_PREFIX', '')
@@ -518,6 +544,7 @@ MODELS.update(SNIPPET_MODELS)
 MODELS.update(FORM_MODELS)
 MODELS.update(DJANGO_MODELS)
 MODELS.update(SETTINGS_MODELS)
+MODELS.update((k, v) for k, v in BLOCK_HANDLERS.items() if not isinstance(v, tuple))
 MODELS_REVERSE = dict((v, k) for k, v in MODELS.items())
 
 
@@ -720,4 +747,3 @@ schema = graphene.Schema(
     mutation=Mutations,
     types=list(MODELS.values())
 )
-
