@@ -90,10 +90,8 @@ def _create_stream_field_type(stream_field_name, field_name, block_type_handlers
                 return handler(**value)
             else:
                 raise NotImplementedError()
-                # return handler(value)
         else:
             raise NotImplementedError()
-            # return StreamBlock(value=value, block_type=block_type)
 
     def resolve_field(self, info):
         field = getattr(self, field_name)
@@ -110,20 +108,6 @@ def _is_list_block(block):
     return isinstance(block, ListBlock)
 
 
-def _resolve(n, hdl):
-    if isinstance(hdl, tuple):
-        res = hdl[1]
-        def _resolve_inner(x, info: ResolveInfo):
-            return res(x[n], info)
-    else:
-        def _resolve_inner(x, info: ResolveInfo):
-            data = x[n]
-            if isinstance(data, dict):
-                return info.return_type.graphene_type(**x[n])
-            return x[n]
-    return _resolve_inner
-
-
 def _add_handler_resolves(dict_params, block):
     to_add = {}
     for k, v in dict_params.items():
@@ -133,6 +117,9 @@ def _add_handler_resolves(dict_params, block):
             else:
                 val = v[0](block)
             to_add['resolve_' + k] = v[1]
+        elif v != GenericScalar:
+            val = v
+            to_add['resolve_' + k] = _resolve
         else:
             val = v
         dict_params[k] = graphene.Field(val)
@@ -153,31 +140,24 @@ def _handler(block, app, prefix=''):
             node = prefix + cls.__name__
             dict_params = dict(
                 (n, _handler(block_type, app, prefix))
-                for n, block_type in block.declared_blocks.items()
+                for n, block_type in block.child_blocks.items()
             )
             _add_handler_resolves(dict_params, block)
             tp = type(node, (graphene.ObjectType,), dict_params)
             handler = tp
+            BLOCK_HANDLERS[clsname] = handler
         elif _is_list_block(block):
-            h = BLOCK_HANDLERS.get(block.child_block.__class__)
-            if h is not None:
-                if isinstance(h, tuple):
-                    this_handler = h[0](block.child_block)
-                    handler = List(this_handler), _resolve_list
-                else:
-                    this_handler = _handler(h, app, prefix)
-                    handler = List(this_handler)
-            else:
+            child_clsname = _class_full_name(block.child_block.__class__)
+            this_handler = BLOCK_HANDLERS.get(child_clsname)
+            if this_handler is None:
                 this_handler = _handler(block.child_block, app, prefix)
-                for n, block_type in block.child_block.declared_blocks.items():
-                    inner_handler = _handler(block_type, app, prefix)
-                    setattr(this_handler, "resolve_" + n, _resolve(n, inner_handler))
-                handler = List(this_handler)
+            if isinstance(this_handler, tuple):
+                this_handler = this_handler[0](block.child_block)
+                handler = List(this_handler), _resolve_list
+            else:
+                handler = List(this_handler), _resolve_simple_list
         else:
             handler = GenericScalar
-
-        if issubclass(cls, StructBlock):
-            BLOCK_HANDLERS[clsname] = handler
 
     return handler
 
@@ -234,14 +214,7 @@ def add_app(app, prefix='{app}', exclude_models=tuple()):
                 blocks = field.stream_block.child_blocks
 
                 handlers = dict(
-                    (
-                        name,
-                        _handler(
-                            block,
-                            app,
-                            prefix
-                        )
-                    )
+                    (name,_handler(block, app, prefix))
                     for name, block in blocks.items()
                 )
 
@@ -460,7 +433,7 @@ def _snippet_handler(block):
     return tp
 
 
-def _snippet_resolve(self, info: ResolveInfo):
+def _resolve_snippet(self, info: ResolveInfo):
     if self is None:
         return None
     id_ = getattr(self, info.field_name)
@@ -481,6 +454,22 @@ def _resolve_page(self, info: ResolveInfo):
         return None
     id_ = self if isinstance(self, int) else getattr(self, info.field_name)
     return wagtailPage.objects.filter(id=id_).specific().first()
+
+
+def _resolve(self, info: ResolveInfo):
+    data = getattr(self, info.field_name)
+    cls = info.return_type
+    return cls.graphene_type(**data)
+
+
+def _resolve_simple_list(self, info: ResolveInfo):
+    if self is None:
+        return None
+    data = getattr(self, info.field_name)
+    cls = info.return_type.of_type.graphene_type
+    if cls == GenericScalar:
+        return list(d for d in data)
+    return list(cls(**d) for d in data)
 
 
 def _resolve_list(self, info: ResolveInfo):
@@ -527,14 +516,14 @@ if HAS_WAGTAILMENUS:
 
 
 BLOCK_HANDLERS = {
-    # classes
-    ImageChooserBlock: (lambda x: Image, _resolve_image),
-    PageChooserBlock: (lambda x: PageInterface, _resolve_page),
-    SnippetChooserBlock: (_snippet_handler, _snippet_resolve),
+    # # classes
+    # ImageChooserBlock: (lambda x: Image, _resolve_image),
+    # PageChooserBlock: (lambda x: PageInterface, _resolve_page),
+    # SnippetChooserBlock: (_snippet_handler, _resolve_snippet),
     # names
     "wagtail.images.blocks.ImageChooserBlock": (lambda x: Image, _resolve_image),
     "wagtail.core.blocks.field_block.PageChooserBlock": (lambda x: PageInterface, _resolve_page),
-    "wagtail.snippets.blocks.SnippetChooserBlock": (_snippet_handler, _snippet_resolve),
+    "wagtail.snippets.blocks.SnippetChooserBlock": (_snippet_handler, _resolve_snippet),
 }
 SETTINGS = settings.GRAPHQL_API
 URL_PREFIX = SETTINGS.get('URL_PREFIX', '')
