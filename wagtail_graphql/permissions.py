@@ -1,13 +1,16 @@
+# python
+from typing import Any, Union
 # django
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
-
 # wagtail
 from wagtail.core.query import PageQuerySet
 from wagtail.core.models import PageViewRestriction, CollectionViewRestriction
+from wagtail.images.models import ImageQuerySet
+from wagtail.documents.models import DocumentQuerySet
 
 
-def with_page_permissions(request, queryset: PageQuerySet) -> PageQuerySet:
+def with_page_permissions(request: Any, queryset: PageQuerySet) -> PageQuerySet:
     user = request.user
 
     # Filter by site
@@ -37,7 +40,10 @@ def with_page_permissions(request, queryset: PageQuerySet) -> PageQuerySet:
     return queryset
 
 
-def with_collection_permissions(request, queryset):
+CollectionQSType = Union[ImageQuerySet, DocumentQuerySet]
+
+
+def with_collection_permissions(request: Any, queryset: CollectionQSType) -> CollectionQSType:
     user = request.user
 
     # Get live pages that are public and check groups and login permissions
