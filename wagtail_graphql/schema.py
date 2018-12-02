@@ -1,5 +1,7 @@
 # django
 from django.utils.text import camel_case_to_spaces
+# graphql
+from graphql import ResolveInfo
 # graphene
 import graphene
 # graphene_django
@@ -34,11 +36,10 @@ class Query(graphene.ObjectType,
             SettingsQueryMixin,
             SnippetsQueryMixin,
             ):
-    # Version
+    # API Version
     format = graphene.Field(String)
 
-    @graphene.resolve_only_args
-    def resolve_format(self):
+    def resolve_format(self, _info: ResolveInfo):
         return '%d.%d.%d' % GRAPHQL_API_FORMAT
 
 
