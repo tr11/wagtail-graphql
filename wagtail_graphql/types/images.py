@@ -49,20 +49,16 @@ class Image(DjangoObjectType):
     url = graphene.String(rendition=graphene.String())
     url_link = graphene.String(rendition=graphene.String())
 
-    @graphene.resolve_only_args
-    def resolve_has_focal_point(self: wagtailImage):
+    def resolve_has_focal_point(self: wagtailImage, _info: ResolveInfo):
         return self.has_focal_point()
 
-    @graphene.resolve_only_args
-    def resolve_focal_point(self: wagtailImage):
+    def resolve_focal_point(self: wagtailImage, _info: ResolveInfo):
         return self.get_focal_point()
 
-    @graphene.resolve_only_args
-    def resolve_tags(self: wagtailImage):
+    def resolve_tags(self: wagtailImage, _info: ResolveInfo):
         return self.tags.all()
 
-    @graphene.resolve_only_args
-    def resolve_url(self: wagtailImage, rendition: str = None):
+    def resolve_url(self: wagtailImage, _info: ResolveInfo, rendition: str = None):
         if not rendition:
             if not self.has_focal_point():
                 rendition = "original"
@@ -72,8 +68,7 @@ class Image(DjangoObjectType):
 
         return generate_image_url(self, rendition)
 
-    @graphene.resolve_only_args
-    def resolve_url_link(self: wagtailImage, rendition: str = None):
+    def resolve_url_link(self: wagtailImage, _info: ResolveInfo, rendition: str = None):
         if not rendition:
             if not self.has_focal_point():
                 rendition = "original"

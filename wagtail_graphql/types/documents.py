@@ -20,8 +20,7 @@ class Document(DjangoObjectType):
     filename = graphene.String()
     file_extension = graphene.String()
 
-    @graphene.resolve_only_args
-    def resolve_tags(self: wagtailDocument):
+    def resolve_tags(self: wagtailDocument, _info: ResolveInfo):
         return self.tags.all()
 
 

@@ -43,8 +43,7 @@ class PageInterface(graphene.Interface):
     seoTitle = graphene.String()
     numchild = graphene.Int()
 
-    @graphene.resolve_only_args
-    def resolve_content_type(self):
+    def resolve_content_type(self, _info: ResolveInfo):
         self.content_type = cast(ContentType, self.content_type)
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
 
@@ -55,8 +54,7 @@ class PageInterface(graphene.Interface):
         model = registry.pages[instance.content_type.model_class()]
         return model
 
-    @graphene.resolve_only_args
-    def resolve_url_path(self) -> str:
+    def resolve_url_path(self, _info: ResolveInfo) -> str:
         self.url_path = cast(str, self.url_path)
         url = self.url_path if not self.url_path.startswith(URL_PREFIX) else self.url_path[len(URL_PREFIX):]
         return url.rstrip('/')
@@ -67,8 +65,7 @@ class PageLink(DjangoObjectType):
         model = wagtailPage
         interfaces = (PageInterface, )
 
-    @graphene.resolve_only_args
-    def resolve_url_path(self: PageInterface) -> str:
+    def resolve_url_path(self: PageInterface, _info: ResolveInfo) -> str:
         url = self.url_path if not self.url_path.startswith(URL_PREFIX) else self.url_path[len(URL_PREFIX):]
         return url.rstrip('/')
 
