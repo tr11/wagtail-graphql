@@ -12,7 +12,6 @@ graphene_django = "^2.2"
 graphene_django_optimizer = "^0.3.5"
 wagtail = "^2.3"
 wagtailmenus = {version = "^2.12", optional = true}
-pytest-pythonpath = "^0.7.3"
 
 [tool.poetry.extras]
 menus = ["wagtailmenus"]
