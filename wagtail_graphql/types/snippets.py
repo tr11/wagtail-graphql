@@ -22,5 +22,4 @@ class SnippetsQueryMixin:
             cls = node._meta.model
             return cls.objects.all()
     else:
-        # Snippet = PageInterface
         pass

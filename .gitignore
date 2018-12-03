@@ -18,3 +18,4 @@ cover
 .mypy_cache
 .idea
 poetry.lock
+htmlcov/

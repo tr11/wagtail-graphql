@@ -58,7 +58,7 @@ try:
     ])
 
     HAS_WAGTAILMENUS = True
-except ImportError:
+except RuntimeError:
     # type: ignore
     class _MenusQueryMixin:
         pass
