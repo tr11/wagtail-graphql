@@ -22,6 +22,7 @@ pytest-django = "^3.4"
 pytest-cov = "^2.6"
 flake8 = "^3.6"
 pytest-pythonpath = "^0.7.3"
+mypy = "^0.641.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
