@@ -19,6 +19,7 @@ from wagtail.contrib.settings.models import BaseSetting
 from .registry import registry
 from .permissions import with_page_permissions
 from .types.settings import settings_registry
+from .settings import url_prefix_for_site
 # app types
 from .types import (
     PageInterface,
@@ -28,7 +29,7 @@ from .types import (
 )
 
 
-def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict, url_prefix: str) -> Type[graphene.Mutation]:
+def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[graphene.Mutation]:
     registry.page_prefetch_fields.add(cls.__name__.lower())
     dict_params['Meta'].interfaces = (PageInterface,)
     dict_params['form_fields'] = graphene.List(FormField)
@@ -46,6 +47,7 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict, url_prefix:
     _node = node
 
     def mutate(_self, info, url, values):
+        url_prefix = url_prefix_for_site(info)
         query = wagtailPage.objects.filter(url_path=url_prefix + url.rstrip('/') + '/')
         instance = with_page_permissions(
             info.context,
@@ -129,7 +131,7 @@ def _add_streamfields(cls: type, node: str, dict_params: dict, app: str, prefix:
 
 
 def _register_model(registered: Set[type], cls: type, snippet: bool,
-                    app: str, prefix: str, url_prefix: str) -> None:
+                    app: str, prefix: str) -> None:
     if cls in registered:
         return
 
@@ -150,7 +152,7 @@ def _register_model(registered: Set[type], cls: type, snippet: bool,
     if snippet:
         _add_snippet(cls, node, dict_params)
     elif issubclass(cls, AbstractForm):
-        _add_form(cls, node, dict_params, url_prefix)
+        _add_form(cls, node, dict_params)
     elif issubclass(cls, wagtailPage):
         _add_page(cls, node, dict_params)
     elif issubclass(cls, BaseSetting):
@@ -161,7 +163,7 @@ def _register_model(registered: Set[type], cls: type, snippet: bool,
     registered.add(cls)
 
 
-def add_app(app: str, prefix: str = '{app}', url_prefix: str = '') -> None:
+def add_app(app: str, prefix: str = '{app}') -> None:
     from django.contrib.contenttypes.models import ContentType
     from wagtail.snippets.models import get_snippet_models
     snippets = get_snippet_models()
@@ -171,11 +173,10 @@ def add_app(app: str, prefix: str = '{app}', url_prefix: str = '') -> None:
     registered = set()
 
     for cls in to_register:
-        _register_model(registered, cls, cls in snippets,
-                        app, prefix, url_prefix)
+        _register_model(registered, cls, cls in snippets, app, prefix)
 
 
-def add_apps_with_settings(settings: dict, url_prefix: str) -> None:
+def add_apps_with_settings(settings: dict) -> None:
     if settings_registry:
         add_app('wagtail.contrib.settings')
 
@@ -185,9 +186,9 @@ def add_apps_with_settings(settings: dict, url_prefix: str) -> None:
             prefix = prefixes
         else:
             prefix = prefixes.get(app, '{app}')
-        add_app(app, prefix=prefix, url_prefix=url_prefix)
+        add_app(app, prefix=prefix)
 
 
 def add_apps() -> None:
-    from .settings import SETTINGS, URL_PREFIX
-    add_apps_with_settings(SETTINGS, URL_PREFIX)
+    from .settings import SETTINGS
+    add_apps_with_settings(SETTINGS)

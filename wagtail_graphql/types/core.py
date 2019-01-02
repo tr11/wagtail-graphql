@@ -16,7 +16,7 @@ from wagtail.core.models import Page as wagtailPage, Site as wagtailSite
 from taggit.managers import TaggableManager
 from wagtail.core.utils import camelcase_to_underscore
 # app
-from ..settings import URL_PREFIX
+from ..settings import url_prefix_for_site
 from ..registry import registry
 from ..permissions import with_page_permissions
 
@@ -54,9 +54,10 @@ class PageInterface(graphene.Interface):
         model = registry.pages[instance.content_type.model_class()]
         return model
 
-    def resolve_url_path(self, _info: ResolveInfo) -> str:
+    def resolve_url_path(self, info: ResolveInfo) -> str:
         self.url_path = cast(str, self.url_path)
-        url = self.url_path if not self.url_path.startswith(URL_PREFIX) else self.url_path[len(URL_PREFIX):]
+        url_prefix = url_prefix_for_site(info)
+        url = self.url_path if not self.url_path.startswith(url_prefix) else self.url_path[len(url_prefix):]
         return url.rstrip('/')
 
 
@@ -65,8 +66,9 @@ class PageLink(DjangoObjectType):
         model = wagtailPage
         interfaces = (PageInterface, )
 
-    def resolve_url_path(self: PageInterface, _info: ResolveInfo) -> str:
-        url = self.url_path if not self.url_path.startswith(URL_PREFIX) else self.url_path[len(URL_PREFIX):]
+    def resolve_url_path(self: PageInterface, info: ResolveInfo) -> str:
+        url_prefix = url_prefix_for_site(info)
+        url = self.url_path if not self.url_path.startswith(url_prefix) else self.url_path[len(url_prefix):]
         return url.rstrip('/')
 
 
@@ -117,7 +119,8 @@ class PagesQueryMixin:
         if id is not None:
             query = query.filter(id=id)
         elif url is not None:
-            query = query.filter(url_path=URL_PREFIX + url.rstrip('/') + '/')
+            url_prefix = url_prefix_for_site(info)
+            query = query.filter(url_path=url_prefix + url.rstrip('/') + '/')
         else:
             raise ValueError("One of 'id' or 'url' must be specified")
         page = with_page_permissions(
