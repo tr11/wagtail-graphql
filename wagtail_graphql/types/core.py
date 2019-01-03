@@ -51,7 +51,10 @@ class PageInterface(graphene.Interface):
     def resolve_type(cls, instance, info: ResolveInfo) -> 'PageInterface':
         if isinstance(instance, int):
             return registry.pages[type(wagtailPage.objects.filter(id=instance).specific().first())]
-        model = registry.pages[instance.content_type.model_class()]
+        try:
+            model = registry.pages[instance.content_type.model_class()]
+        except KeyError:
+            raise ValueError("Model %s is not a registered GraphQL type" % instance.content_type.model_class())
         return model
 
     def resolve_url_path(self, info: ResolveInfo) -> str:

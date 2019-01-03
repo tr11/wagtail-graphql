@@ -180,13 +180,16 @@ def add_apps_with_settings(settings: dict) -> None:
     if settings_registry:
         add_app('wagtail.contrib.settings')
 
-    for app in settings['APPS']:
+    for app in settings.get('APPS', []):
         prefixes = settings.get('PREFIX', {})
         if isinstance(prefixes, str):
             prefix = prefixes
         else:
             prefix = prefixes.get(app, '{app}')
         add_app(app, prefix=prefix)
+    else:
+        import logging
+        logging.warning("No APPS specified for wagtail_graphql")
 
 
 def add_apps() -> None:

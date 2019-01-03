@@ -3,8 +3,10 @@ from django.conf import settings
 # graphql
 from graphql import ResolveInfo
 
-
-SETTINGS = settings.GRAPHQL_API
+if hasattr(settings, 'GRAPHQL_API'):
+    SETTINGS = settings.GRAPHQL_API
+else:
+    SETTINGS = {}
 URL_PREFIX = SETTINGS.get('URL_PREFIX', {})
 
 
