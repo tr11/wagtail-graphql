@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wagtail-graphql"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = [
     "Tiago Requeijo <tiago.requeijo.dev@gmail.com>"

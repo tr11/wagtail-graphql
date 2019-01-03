@@ -21,7 +21,7 @@ from .types import (
 )
 
 # api version
-GRAPHQL_API_FORMAT = (0, 1, 0)
+GRAPHQL_API_FORMAT = (0, 1, 1)
 
 # add all the apps from the settings
 add_apps()
