@@ -1,10 +1,15 @@
 [tool.poetry]
 name = "wagtail-graphql"
 version = "0.1.1"
-description = ""
+description = "An app to automatically add graphql support to a Wagtail website"
+license = "MIT"
+readme = "README.md"
 authors = [
     "Tiago Requeijo <tiago.requeijo.dev@gmail.com>"
 ]
+repository = "https://github.com/tr11/wagtail-graphql"
+homepage = "https://github.com/tr11/wagtail-graphql"
+keywords = ['wagtail', 'graphql', 'api', 'wagtail-graphql']
 
 [tool.poetry.dependencies]
 python = "~3.6||~3.7"
