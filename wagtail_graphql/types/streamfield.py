@@ -29,8 +29,33 @@ def convert_stream_field(field, _registry=None):
     return Scalar(description=field.help_text, required=not field.null)
 
 
+def _scalar_block(graphene_type):
+    tp = registry.scalar_blocks.get(graphene_type)
+    if not tp:
+        node = '%sBlock' % graphene_type
+        tp = type(node, (graphene.ObjectType,), {
+            'value': graphene.Field(graphene_type),
+            'field': graphene.Field(graphene.String),
+        })
+        registry.scalar_blocks[graphene_type] = tp
+    return tp, lambda x: tp
+
+
+def _resolve_scalar(key, type_):
+    def resolve(self, _info: ResolveInfo):
+        return type_(value=self, field=key)
+    return resolve
+
+
 def stream_field_handler(stream_field_name: str, field_name: str, block_type_handlers: dict) -> StreamFieldHandlerType:
+    for k, t in block_type_handlers.items():
+        # Unions must reference NamedTypes, so for scalar types we need to create a new type to encapsulate the scalar
+        if not isinstance(t, tuple) and issubclass(t, Scalar):
+            typ, typ_fn = _scalar_block(t)
+            block_type_handlers[k] = typ_fn, _resolve_scalar(k, typ)
+
     types_ = list(block_type_handlers.values())
+
     for i, t in enumerate(types_):
         if isinstance(t, tuple):
             types_[i] = t[0](None)
@@ -110,6 +135,7 @@ def _class_full_name(cls):
 def block_handler(block: Block, app, prefix=''):
     cls = block.__class__
     handler = registry.blocks.get(cls)
+
     if handler is None:
         if _is_custom_type(block):
             target_block_type = block.__graphql_type__()
@@ -144,6 +170,7 @@ def block_handler(block: Block, app, prefix=''):
                 handler = List(this_handler), _resolve_simple_list
         else:
             handler = GenericScalar
+
     return handler
 
 

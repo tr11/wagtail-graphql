@@ -14,6 +14,7 @@ class Registry:
     _snippets = RegistryItem()
     _snippets_by_name = RegistryItem()
     _streamfield_blocks = RegistryItem()
+    _streamfield_scalar_blocks = RegistryItem()
     _page_prefetch = {
         'content_type', 'owner',
         'live_revision', 'page_ptr'
@@ -22,6 +23,10 @@ class Registry:
     @property
     def blocks(self) -> RegistryItem:
         return self._streamfield_blocks
+
+    @property
+    def scalar_blocks(self) -> RegistryItem:
+        return self._streamfield_scalar_blocks
 
     @property
     def django(self) -> RegistryItem:
