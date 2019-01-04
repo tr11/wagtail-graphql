@@ -91,6 +91,19 @@ def convert_field_to_string(field, _registry=None):
     return List(String, description=field.help_text, required=not field.null)
 
 
+def _resolve_preview(request, view):
+    from django.http import QueryDict
+    page = view.get_page()
+    post_data, timestamp = request.session.get(view.session_key, (None, None))
+    if not isinstance(post_data, str):
+        post_data = ''
+    form = view.get_form(page, QueryDict(post_data))
+    if not form.is_valid():
+        raise ValueError("Invalid preview data")
+    form.save(commit=False)
+    return page
+
+
 class PagesQueryMixin:
     if registry.pages:
         class _Page(graphene.types.union.Union):
@@ -107,6 +120,15 @@ class PagesQueryMixin:
                           url=graphene.String(),
                           revision=graphene.Int(),
                           )
+    preview = graphene.Field(PageInterface,
+                             id=graphene.Int(required=True),
+                             )
+
+    preview_add = graphene.Field(PageInterface,
+                                 app_name=graphene.String(),
+                                 model_name=graphene.String(),
+                                 parent=graphene.Int(required=True),
+                                 )
 
     def resolve_pages(self, info: ResolveInfo, parent: int = None):
         query = wagtailPage.objects
@@ -157,6 +179,21 @@ class PagesQueryMixin:
 
         if page is None:
             return None
+        return page
+
+    def resolve_preview(self, info: ResolveInfo, id: int = None):
+        from wagtail.admin.views.pages import PreviewOnEdit
+        request = info.context
+        view = PreviewOnEdit(args=('%d' % id, ), request=request)
+        return _resolve_preview(request, view)
+
+    def resolve_preview_add(self, info: ResolveInfo, app_name: str = 'wagtailcore',
+                            model_name: str = 'page', parent: int = None):
+        from wagtail.admin.views.pages import PreviewOnCreate
+        request = info.context
+        view = PreviewOnCreate(args=(app_name, model_name, str(parent)), request=request)
+        page = _resolve_preview(request, view)
+        page.id = 0  # force an id, since our schema assumes page.id is an Int!
         return page
 
     # Show in Menu

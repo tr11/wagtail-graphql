@@ -180,6 +180,10 @@ def add_apps_with_settings(settings: dict) -> None:
     if settings_registry:
         add_app('wagtail.contrib.settings')
 
+    # standard page
+    if wagtailPage not in registry.pages:
+        _register_model(set(), wagtailPage, False, 'wagtailcore', '')
+
     apps = settings.get('APPS', [])
 
     for app in apps:

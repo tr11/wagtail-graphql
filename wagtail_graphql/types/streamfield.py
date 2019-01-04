@@ -75,9 +75,12 @@ def stream_field_handler(stream_field_name: str, field_name: str, block_type_han
         }
     )
 
-    def convert_block(block, info: ResolveInfo):
-        block_type = block.get('type')
-        value = block.get('value')
+    def convert_block(block, info: ResolveInfo, is_lazy=True):
+        if is_lazy:
+            block_type = block.get('type')
+            value = block.get('value')
+        else:
+            block_type, value = block[:2]
         if block_type in block_type_handlers:
             handler = block_type_handlers.get(block_type)
             if isinstance(handler, tuple):
@@ -93,7 +96,7 @@ def stream_field_handler(stream_field_name: str, field_name: str, block_type_han
 
     def resolve_field(self, info: ResolveInfo):
         field = getattr(self, field_name)
-        return [convert_block(block, info) for block in field.stream_data]
+        return [convert_block(block, info, field.is_lazy) for block in field.stream_data]
 
     return graphene.List(stream_field_type), resolve_field
 
