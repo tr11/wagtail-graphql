@@ -46,7 +46,12 @@ __all__ = [
 ]
 
 # menus
+
 try:
+    from django.conf import settings
+    if 'wagtailmenus' not in settings.INSTALLED_APPS:
+        raise ImportError()
+
     from .menus import MenusQueryMixin, Menu, MenuItem, SecondaryMenu, SecondaryMenuItem  # noqa: F401
 
     __all__.extend([
