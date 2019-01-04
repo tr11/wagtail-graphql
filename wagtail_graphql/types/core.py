@@ -42,6 +42,17 @@ class PageInterface(graphene.Interface):
     depth = graphene.Int()
     seoTitle = graphene.String()
     numchild = graphene.Int()
+    revision = graphene.Int()
+    first_published_at = graphene.DateTime()
+    last_published_at = graphene.DateTime()
+    latest_revision_created_at = graphene.DateTime()
+    live = graphene.Boolean()
+    go_live_at = graphene.DateTime()
+    expire_at = graphene.DateTime()
+    expired = graphene.Boolean()
+    locked = graphene.Boolean()
+    draft_title = graphene.String()
+    has_unpublished_changes = graphene.Boolean()
 
     def resolve_content_type(self, _info: ResolveInfo):
         self.content_type = cast(ContentType, self.content_type)
@@ -93,7 +104,8 @@ class PagesQueryMixin:
                           parent=graphene.Int())
     page = graphene.Field(PageInterface,
                           id=graphene.Int(),
-                          url=graphene.String()
+                          url=graphene.String(),
+                          revision=graphene.Int(),
                           )
 
     def resolve_pages(self, info: ResolveInfo, parent: int = None):
@@ -117,7 +129,7 @@ class PagesQueryMixin:
             query.specific()
         ).live().order_by('path').all()
 
-    def resolve_page(self, info: ResolveInfo, id: int = None, url: str = None):
+    def resolve_page(self, info: ResolveInfo, id: int = None, url: str = None, revision: int = None):
         query = wagtailPage.objects
         if id is not None:
             query = query.filter(id=id)
@@ -130,6 +142,19 @@ class PagesQueryMixin:
             info.context,
             query.select_related('content_type').specific()
         ).live().first()
+
+        if revision is not None:
+            if revision == -1:
+                rev = page.get_latest_revision()
+            else:
+                rev = page.revisions.filter(id=revision).first()
+            if not rev:
+                raise ValueError("Revision %d doesn't exist" % revision)
+
+            page = rev.as_page_object()
+            page.revision = rev.id
+            return page
+
         if page is None:
             return None
         return page
