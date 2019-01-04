@@ -15,7 +15,7 @@ pip install wagtail-graphql
 
 Add it together with [graphene_django](https://github.com/graphql-python/graphene-django) to the Django INSTALLED_APPS:
 
-```
+```python
 INSTALLED_APPS = [
     ...
     'wagtail_graphql',
@@ -50,10 +50,27 @@ GRAPHQL_API = {
 The example above generates bindings for the `home` app, .  Every url in this example
 will be stripped of the initial `/home` substring.
 
+Finally, set up the GraphQL views in the project `urls.py`.
+For example, to add two endpoints for GraphQL and the [GraphiQL](https://github.com/graphql/graphiql) IDE: 
+
+```python
+from django.views.decorators.csrf import csrf_exempt
+from graphene_django.views import GraphQLView
+
+urlpatterns = [
+    ...
+    url(r'^api/graphql', csrf_exempt(GraphQLView.as_view())),
+    url(r'^api/graphiql', csrf_exempt(GraphQLView.as_view(graphiql=True, pretty=True)),
+    ...
+]
+```
+Note that the urls above need to appear before the `wagtail_urls` catchall entry.
+
+
 ### Multi-site configuration
 This library works transparently with a multi-site Wagtail install without any extra configuration required.  To strip a custom leading prefix for each site, specify each host in the `URL_PREFIX`.  For exaple, for two hosts `host1.example.com` and `host2.example.com`:
 
-```python
+```
 GRAPHQL_API = {
     ...
     'URL_PREFIX': {

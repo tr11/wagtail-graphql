@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wagtail-graphql"
-version = "0.1.2"
+version = "0.1.3"
 description = "An app to automatically add graphql support to a Wagtail website"
 license = "MIT"
 readme = "README.md"
