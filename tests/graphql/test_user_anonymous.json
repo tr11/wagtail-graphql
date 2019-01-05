@@ -1,0 +1,14 @@
+{
+  "data": {
+    "user": {
+      "id": "-1",
+      "isSuperuser": false,
+      "username": "anonymous",
+      "firstName": "",
+      "lastName": "",
+      "email": "",
+      "isStaff": false,
+      "isActive": true
+    }
+  }
+}

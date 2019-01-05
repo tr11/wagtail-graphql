@@ -11,6 +11,7 @@ from .registry import registry
 from .actions import add_apps
 # mixins
 from .types import (
+    AuthQueryMixin, LoginMutation, LogoutMutation,
     DocumentQueryMixin,
     ImageQueryMixin,
     InfoQueryMixin,
@@ -28,6 +29,7 @@ add_apps()
 
 
 class Query(graphene.ObjectType,
+            AuthQueryMixin,
             DocumentQueryMixin,
             ImageQueryMixin,
             InfoQueryMixin,
@@ -44,7 +46,10 @@ class Query(graphene.ObjectType,
 
 
 def mutation_parameters() -> dict:
-    dict_params = {"format": graphene.Field(String)}
+    dict_params = {
+        'login': LoginMutation.Field(),
+        'logout': LogoutMutation.Field(),
+    }
     dict_params.update((camel_case_to_spaces(n).replace(' ', '_'), mut.Field())
                        for n, mut in registry.forms.items())
     return dict_params

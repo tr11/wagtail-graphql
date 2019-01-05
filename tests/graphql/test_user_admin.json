@@ -1,0 +1,15 @@
+{
+  "data": {
+    "user": {
+      "dateJoined": "2019-01-04T23:51:26.589548+00:00",
+      "email": "admin@admin.org",
+      "firstName": "First",
+      "id": "1",
+      "isActive": true,
+      "isStaff": true,
+      "isSuperuser": true,
+      "lastName": "Last",
+      "username": "admin"
+    }
+  }
+}

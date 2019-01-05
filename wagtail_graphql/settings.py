@@ -5,7 +5,7 @@ from graphql import ResolveInfo
 
 if hasattr(settings, 'GRAPHQL_API'):
     SETTINGS = settings.GRAPHQL_API
-else:
+else:   # pragma: no cover
     SETTINGS = {}
 URL_PREFIX = SETTINGS.get('URL_PREFIX', {})
 

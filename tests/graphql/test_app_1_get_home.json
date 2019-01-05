@@ -1,0 +1,32 @@
+{
+  "data": {
+    "page": {
+      "__typename": "Test_app_1HomePage",
+      "contentType": "test_app_1.HomePage",
+      "depth": 2,
+      "draftTitle": "Home",
+      "expireAt": null,
+      "expired": false,
+      "fieldBool": true,
+      "fieldChar": "ABC",
+      "fieldDate": "2019-01-04",
+      "fieldDatetime": "2019-01-04T16:00:00+00:00",
+      "fieldInt": 100,
+      "firstPublishedAt": "2019-01-04T23:53:21.623211+00:00",
+      "goLiveAt": null,
+      "hasUnpublishedChanges": false,
+      "id": 3,
+      "lastPublishedAt": "2019-01-04T23:53:21.623211+00:00",
+      "latestRevisionCreatedAt": "2019-01-04T23:53:21.592052+00:00",
+      "live": true,
+      "locked": false,
+      "numchild": 0,
+      "path": "00010001",
+      "revision": null,
+      "seoTitle": null,
+      "slug": "home",
+      "title": "Home",
+      "urlPath": ""
+    }
+  }
+}

@@ -25,8 +25,10 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 INSTALLED_APPS = [
     'test_app_1',
+    'test_app_2',
 
     'wagtail_graphql',
+    'graphene_django',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -89,11 +91,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(os.path.join(os.path.dirname(__file__), '..', '..'), 'db.sqlite3'),
     }
 }
 
@@ -170,9 +171,12 @@ GRAPHENE = {
 
 GRAPHQL_API = {
     'APPS': [
-        'test_app_1'
+        'test_app_1',
+        'test_app_2',
     ],
     'PREFIX': {
     },
-    'URL_PREFIX': ''
+    'URL_PREFIX': {
+
+    }
 }

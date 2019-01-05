@@ -7,6 +7,11 @@ from .core import (
     InfoQueryMixin,
     PagesQueryMixin,
 )
+from .auth import (
+    AuthQueryMixin,
+    LoginMutation,
+    LogoutMutation,
+)
 from .documents import (
     Document,
     # mixins
@@ -28,6 +33,10 @@ __all__ = [
     'Settings',
     'Site',
     'User',
+    # auth
+    'AuthQueryMixin',
+    'LoginMutation',
+    'LogoutMutation',
     # documents
     'Document',
     # forms

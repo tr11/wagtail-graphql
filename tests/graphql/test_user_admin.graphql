@@ -1,0 +1,13 @@
+query {
+  user {
+    id
+    isSuperuser
+    username
+    firstName
+    lastName
+    email
+    isStaff
+    isActive
+    dateJoined
+  }
+}
