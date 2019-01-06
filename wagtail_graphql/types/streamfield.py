@@ -245,6 +245,8 @@ def _is_custom_type(block):
 def _add_handler_resolves(dict_params):
     to_add = {}
     for k, v in dict_params.items():
+        if k == 'field':
+            raise ValueError("StructBlocks cannot have fields named 'field'")
         if isinstance(v, tuple):
             val = v[0]
             to_add['resolve_' + k] = v[1]
@@ -291,6 +293,10 @@ def block_handler(block: Block, app, prefix=''):
                 for n, block_type in block.child_blocks.items()
             )
             _add_handler_resolves(dict_params)
+            dict_params.update({  # add the field name
+                'field': graphene.Field(graphene.String),
+                'resolve_field': lambda *x: block.name,
+            })
             tp = type(node, (graphene.ObjectType,), dict_params)
             handler = tp
             registry.blocks[cls] = handler

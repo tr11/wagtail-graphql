@@ -23,6 +23,7 @@
       "custom": [
         {
           "__typename": "Test_app_2CustomBlock1",
+          "field": "custom1",
           "fieldBool": true,
           "fieldChar": "sdfsdh",
           "fieldChoice": "coffee",
@@ -47,6 +48,7 @@
         },
         {
           "__typename": "Test_app_2CustomBlock2",
+          "field": "custom2",
           "fieldImage": {
             "title": "wagtail logo with focal point"
           },

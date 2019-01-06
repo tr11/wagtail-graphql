@@ -78,6 +78,7 @@
       custom {
         __typename
         ... on Test_app_2CustomBlock1 {
+          field
           fieldChar
           fieldText
           fieldEmail
@@ -98,6 +99,7 @@
           fieldList
         }
         ... on Test_app_2CustomBlock2 {
+          field
           fieldLink {
             title
           }
