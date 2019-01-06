@@ -66,6 +66,20 @@ urlpatterns = [
 ```
 Note that the urls above need to appear before the `wagtail_urls` catchall entry.
 
+#### Images
+
+To be able to generate urls for images the following also needs to be included in the project's `urls.py`:
+
+```python
+from wagtail.images.views.serve import ServeView
+
+urlpatterns = [
+    ...
+    url(r'^images/([^/]*)/(\d*)/([^/]*)/[^/]*$', ServeView.as_view(), name='wagtailimages_serve'),
+    ...
+]
+```
+
 
 ### Multi-site configuration
 This library works transparently with a multi-site Wagtail install without any extra configuration required.  To strip a custom leading prefix for each site, specify each host in the `URL_PREFIX`.  For exaple, for two hosts `host1.example.com` and `host2.example.com`:
