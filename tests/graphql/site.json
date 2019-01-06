@@ -1,0 +1,14 @@
+{
+  "data": {
+    "root": {
+      "hostname": "localhost",
+      "id": "2",
+      "isDefaultSite": true,
+      "port": 80,
+      "rootPage": {
+        "title": "Home"
+      },
+      "siteName": "THIS is the NAME"
+    }
+  }
+}

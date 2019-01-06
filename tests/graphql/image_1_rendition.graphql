@@ -1,0 +1,31 @@
+query {
+  image(id: 2) {
+    id
+    title
+    file
+    width
+    height
+    createdAt
+    uploadedByUser {
+      id
+      username
+    }
+    fileSize
+    fileHash
+    tags
+    hasFocalPoint
+    focalPoint {
+      left
+      top
+      right
+      bottom
+      x
+      y
+      height
+      width
+    }
+    url(rendition: "fill-300x150|jpegquality-60")
+    urlLink(rendition: "fill-300x150|jpegquality-60")
+  }
+
+}

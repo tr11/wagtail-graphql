@@ -1,0 +1,17 @@
+query {
+  document(id: 1) {
+    id
+    title
+    file
+    createdAt
+    uploadedByUser {
+      username
+    }
+    fileSize
+    fileHash
+    tags
+    url
+    filename
+    fileExtension
+  }
+}

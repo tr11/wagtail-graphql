@@ -1,13 +1,18 @@
 # python
 from typing import Tuple, Callable
+import datetime
 # graphql
+from graphql import GraphQLScalarType
 from graphql.execution.base import ResolveInfo
 # graphene
 import graphene
+from graphene.utils.str_converters import to_snake_case
 from graphene.types.generic import GenericScalar
 from graphene.types import Scalar
 # graphene_django
 from graphene_django.converter import convert_django_field, List
+# dateutil
+from dateutil.parser import parse as dtparse
 # wagtail
 import wagtail.core.blocks
 import wagtail.images.blocks
@@ -16,6 +21,7 @@ from wagtail.core.blocks import Block, ListBlock, StructBlock
 from wagtail.core.fields import StreamField
 # app
 from ..registry import registry
+from .. import settings
 # app types
 from .core import PageInterface, wagtailPage
 from .images import Image, wagtailImage
@@ -38,27 +44,150 @@ def _scalar_block(graphene_type):
             'field': graphene.Field(graphene.String),
         })
         registry.scalar_blocks[graphene_type] = tp
-    return tp, lambda x: tp
+    return tp
 
 
 def _resolve_scalar(key, type_):
-    def resolve(self, _info: ResolveInfo):
-        return type_(value=self, field=key)
+    type_str = str(type_)
+    if type_str == 'DateBlock':
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=dtparse(self), field=key)
+    elif type_str == 'DateTimeBlock':
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=dtparse(self), field=key)
+    elif type_str == 'TimeBlock':
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=datetime.time.fromisoformat(self), field=key)
+    else:
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=self, field=key)
+    return resolve
+
+
+def _page_block():
+    tp = registry.scalar_blocks.get(PageInterface)
+    if not tp:
+        node = 'PageBlock'
+        tp = type(node, (graphene.ObjectType,), {
+            'value': graphene.Field(PageInterface),
+            'field': graphene.Field(graphene.String),
+        })
+        registry.scalar_blocks[PageInterface] = tp
+    return tp
+
+
+def _resolve_page_block(key, type_):
+    def resolve(self, info: ResolveInfo):
+        return type_(value=_resolve_page(self, info), field=key)
+    return resolve
+
+
+def _image_block():
+    tp = registry.scalar_blocks.get(Image)
+    if not tp:
+        node = 'ImageBlock'
+        tp = type(node, (graphene.ObjectType,), {
+            'value': graphene.Field(Image),
+            'field': graphene.Field(graphene.String),
+        })
+        registry.scalar_blocks[Image] = tp
+    return tp
+
+
+def _resolve_image_block(key, type_):
+    def resolve(self, info: ResolveInfo):
+        return type_(value=_resolve_image(self, info), field=key)
+    return resolve
+
+
+def _snippet_block(typ):
+    tp = registry.scalar_blocks.get(typ)
+    if not tp:
+        node = '%sBlock' % typ
+        tp = type(node, (graphene.ObjectType,), {
+            'value': graphene.Field(typ),
+            'field': graphene.Field(graphene.String),
+        })
+        registry.scalar_blocks[typ] = tp
+    return tp
+
+
+def _resolve_snippet_block(key, type_, snippet_type):
+    def resolve(self, info: ResolveInfo):
+        info.return_type = snippet_type
+        return type_(value=_resolve_snippet(self, info), field=key)
+    return resolve
+
+
+def _list_block(typ):
+    tp = registry.scalar_blocks.get((List, typ))
+    if not tp:
+        node = '%sListBlock' % typ
+        tp = type(node, (graphene.ObjectType,), {
+            'value': graphene.List(typ),
+            'field': graphene.Field(graphene.String),
+        })
+        registry.scalar_blocks[(List, typ)] = tp
+    return tp
+
+
+def _resolve_list_block(key, type_, of_type):
+    if issubclass(of_type, Scalar):
+        type_str = str(of_type)
+        if type_str == 'Date' or type_str == 'DateTime':
+            def resolve(self, _info: ResolveInfo):
+                return type_(value=list(dtparse(s) for s in self), field=key)
+        elif type_str == 'Time':
+            def resolve(self, _info: ResolveInfo):
+                return type_(value=list(datetime.time.fromisoformat(s) for s in self), field=key)
+        else:
+            def resolve(self, _info: ResolveInfo):
+                return type_(value=list(s for s in self), field=key)
+    elif of_type == Image:
+        def resolve(self, info: ResolveInfo):
+            return type_(value=list(_resolve_image(s, info) for s in self), field=key)
+    elif of_type == PageInterface:
+            def resolve(self, info: ResolveInfo):
+                return type_(value=list(_resolve_page(s, info) for s in self), field=key)
+    elif of_type in registry.snippets.values():
+        def resolve(self, info: ResolveInfo):
+            info.return_type = of_type
+            return type_(value=list(_resolve_snippet(s, info) for s in self), field=key)
+    else:
+        def resolve(self, info: ResolveInfo):
+            info.return_type = of_type
+            return type_(value=list(of_type(**s) for s in self), field=key)
     return resolve
 
 
 def stream_field_handler(stream_field_name: str, field_name: str, block_type_handlers: dict) -> StreamFieldHandlerType:
+    # add Generic Scalars (default)
+    if settings.LOAD_GENERIC_SCALARS:
+        _scalar_block(GenericScalar)
+
     for k, t in block_type_handlers.items():
-        # Unions must reference NamedTypes, so for scalar types we need to create a new type to encapsulate the scalar
+        # Unions must reference NamedTypes, so for scalar types we need to create a new type to
+        # encapsulate scalars, page links, images, snippets
         if not isinstance(t, tuple) and issubclass(t, Scalar):
-            typ, typ_fn = _scalar_block(t)
-            block_type_handlers[k] = typ_fn, _resolve_scalar(k, typ)
+            typ = _scalar_block(t)
+            block_type_handlers[k] = typ, _resolve_scalar(k, typ)
+        elif isinstance(t, tuple) and isinstance(t[0], List):
+            typ = _list_block(t[0].of_type)
+            block_type_handlers[k] = typ, _resolve_list_block(k, typ, t[0].of_type)
+        elif isinstance(t, tuple) and issubclass(t[0], PageInterface):
+            typ = _page_block()
+            block_type_handlers[k] = typ, _resolve_page_block(k, typ)
+        elif isinstance(t, tuple) and issubclass(t[0], Image):
+            typ = _image_block()
+            block_type_handlers[k] = typ, _resolve_image_block(k, typ)
+        elif isinstance(t, tuple) and t[0] in registry.snippets.values():
+            typ = _snippet_block(t[0])
+            block_type_handlers[k] = typ, _resolve_snippet_block(k, typ, t[0])
 
     types_ = list(block_type_handlers.values())
-
     for i, t in enumerate(types_):
         if isinstance(t, tuple):
-            types_[i] = t[0](None)
+            types_[i] = t[0]
 
     class Meta:
         types = tuple(set(types_))
@@ -90,9 +219,9 @@ def stream_field_handler(stream_field_name: str, field_name: str, block_type_han
                 if isinstance(value, dict):
                     return handler(**value)
                 else:
-                    raise NotImplementedError()
+                    raise NotImplementedError()  # pragma: no cover
         else:
-            raise NotImplementedError()
+            raise NotImplementedError()  # pragma: no cover
 
     def resolve_field(self, info: ResolveInfo):
         field = getattr(self, field_name)
@@ -113,15 +242,18 @@ def _is_custom_type(block):
     return hasattr(block, "__graphql_type__")
 
 
-def _add_handler_resolves(dict_params, block):
+def _add_handler_resolves(dict_params):
     to_add = {}
     for k, v in dict_params.items():
         if isinstance(v, tuple):
-            if isinstance(v[0], (List, graphene.Field)):
-                val = v[0]
-            else:
-                val = v[0](block)
+            val = v[0]
             to_add['resolve_' + k] = v[1]
+        elif issubclass(v, (graphene.types.DateTime, graphene.types.Date)):
+            val = v
+            to_add['resolve_' + k] = _resolve_datetime
+        elif issubclass(v, graphene.types.Time):
+            val = v
+            to_add['resolve_' + k] = _resolve_time
         elif not issubclass(v, Scalar):
             val = v
             to_add['resolve_' + k] = _resolve
@@ -158,21 +290,21 @@ def block_handler(block: Block, app, prefix=''):
                 (n, block_handler(block_type, app, prefix))
                 for n, block_type in block.child_blocks.items()
             )
-            _add_handler_resolves(dict_params, block)
+            _add_handler_resolves(dict_params)
             tp = type(node, (graphene.ObjectType,), dict_params)
             handler = tp
             registry.blocks[cls] = handler
         elif _is_list_block(block):
-            this_handler = registry.blocks.get(block.child_block.__class__)
-            if this_handler is None:
-                this_handler = block_handler(block.child_block, app, prefix)
+            this_handler = block_handler(block.child_block, app, prefix)
             if isinstance(this_handler, tuple):
-                this_handler = this_handler[0](block.child_block)
-                handler = List(this_handler), _resolve_list
+                handler = List(this_handler[0]), _resolve_list(*this_handler)
             else:
                 handler = List(this_handler), _resolve_simple_list
         else:
             handler = GenericScalar
+
+    if cls == wagtail.snippets.blocks.SnippetChooserBlock:
+        handler = (handler[0](block), handler[1])
 
     return handler
 
@@ -185,8 +317,12 @@ def _snippet_handler(block):
 def _resolve_snippet(self, info: ResolveInfo):
     if self is None:
         return None
-    id_ = getattr(self, info.field_name)
-    cls = info.return_type.graphene_type._meta.model
+    field = to_snake_case(info.field_name)
+    id_ = self if isinstance(self, int) else getattr(self, field)
+    if hasattr(info.return_type, 'graphene_type'):
+        cls = info.return_type.graphene_type._meta.model
+    else:
+        cls = info.return_type._meta.model
     obj = cls.objects.filter(id=id_).first()
     return obj
 
@@ -194,25 +330,48 @@ def _resolve_snippet(self, info: ResolveInfo):
 def _resolve_image(self, info: ResolveInfo):
     if self is None:
         return None
-    id_ = getattr(self, info.field_name)
+    field = to_snake_case(info.field_name)
+    id_ = self if isinstance(self, int) else getattr(self, field)
     return wagtailImage.objects.filter(id=id_).first()
 
 
 def _resolve_page(self, info: ResolveInfo):
     if self is None:
         return None
-    id_ = self if isinstance(self, int) else getattr(self, info.field_name)
+    field = to_snake_case(info.field_name)
+    id_ = self if isinstance(self, int) else getattr(self, field)
     return wagtailPage.objects.filter(id=id_).specific().first()
 
 
 def _resolve(self, info: ResolveInfo):
-    data = getattr(self, info.field_name)
+    if self is None:
+        return None
+    field = to_snake_case(info.field_name)
+    data = getattr(self, field)
     cls = info.return_type
     return cls.graphene_type(**data)
 
 
+def _resolve_datetime(self, info: ResolveInfo):
+    if self is None:
+        return None
+    field = to_snake_case(info.field_name)
+    data = getattr(self, field)
+    return dtparse(data) if data else None
+
+
+def _resolve_time(self, info: ResolveInfo):
+    if self is None:
+        return None
+    field = to_snake_case(info.field_name)
+    data = getattr(self, field)
+    return datetime.time.fromisoformat(data) if data else None
+
+
 def _resolve_custom(block, hdl):
     def _inner(self, info: ResolveInfo):
+        if self is None:
+            return None
         cls = info.return_type
         if isinstance(self, dict):
             data = self
@@ -227,6 +386,8 @@ def _resolve_custom(block, hdl):
 
 
 def _resolve_generic_scalar(self, info: ResolveInfo):
+    if self is None:
+        return None
     data = getattr(self, info.field_name)
     cls = info.return_type
     return cls.serialize(data)
@@ -235,26 +396,29 @@ def _resolve_generic_scalar(self, info: ResolveInfo):
 def _resolve_simple_list(self, info: ResolveInfo):
     if self is None:
         return None
-    data = getattr(self, info.field_name)
-    cls = info.return_type.of_type.graphene_type
-    if issubclass(cls, Scalar):
+    field = to_snake_case(info.field_name)
+    data = getattr(self, field)
+    cls = info.return_type.of_type
+    if isinstance(cls, (Scalar, GraphQLScalarType)):
         return list(d for d in data)
     return list(cls(**d) for d in data)
 
 
-def _resolve_list(self, info: ResolveInfo):
-    if self is None:
-        return None
-    ids = getattr(self, info.field_name)
-    cls = info.return_type.of_type.graphene_type._meta.model
-    objs = dict((x.id, x) for x in cls.objects.filter(id__in=ids).all())
-    return list(objs.get(i) for i in ids)
+def _resolve_list(tp, inner_resolver):
+    def resolve(self, info: ResolveInfo):
+        if self is None:
+            return None
+        field = to_snake_case(info.field_name)
+        ids = getattr(self, field)
+        info.return_type = tp
+        return list(inner_resolver(i, info) for i in ids)
+    return resolve
 
 
 registry.blocks.update({
     # choosers
-    wagtail.images.blocks.ImageChooserBlock: (lambda x: Image, _resolve_image),
-    wagtail.core.blocks.PageChooserBlock: (lambda x: PageInterface, _resolve_page),
+    wagtail.images.blocks.ImageChooserBlock: (Image, _resolve_image),
+    wagtail.core.blocks.PageChooserBlock: (PageInterface, _resolve_page),
     wagtail.snippets.blocks.SnippetChooserBlock: (_snippet_handler, _resolve_snippet),
     # standard fields
     wagtail.core.blocks.CharBlock: graphene.types.String,
@@ -266,4 +430,12 @@ registry.blocks.update({
     wagtail.core.blocks.FloatBlock: graphene.types.Float,
     wagtail.core.blocks.DecimalBlock: graphene.types.String,
     wagtail.core.blocks.TextBlock: graphene.types.String,
+    wagtail.core.blocks.TimeBlock: graphene.types.Time,
+    wagtail.core.blocks.RichTextBlock: graphene.types.String,
+    wagtail.core.blocks.RawHTMLBlock: graphene.types.String,
+    wagtail.core.blocks.BlockQuoteBlock: graphene.types.String,
+    wagtail.core.blocks.ChoiceBlock: graphene.types.String,
+    wagtail.core.blocks.RegexBlock: graphene.types.String,
+    wagtail.core.blocks.EmailBlock: graphene.types.String,
+    wagtail.core.blocks.StaticBlock: graphene.types.String,
 })

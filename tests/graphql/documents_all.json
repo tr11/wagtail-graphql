@@ -1,0 +1,42 @@
+{
+  "data": {
+    "documents": [
+      {
+        "createdAt": "2019-01-06T00:18:43.593597+00:00",
+        "file": "documents/README.md",
+        "fileExtension": "md",
+        "fileHash": "31d1a4311d0097df396dbe4dae9524eb8cb58d0f",
+        "fileSize": 3768,
+        "filename": "README.md",
+        "id": "1",
+        "tags": [
+          "code",
+          "readme"
+        ],
+        "title": "README.md",
+        "uploadedByUser": {
+          "username": "admin"
+        },
+        "url": "/documents/1/README.md"
+      },
+      {
+        "createdAt": "2019-01-06T00:24:08.697420+00:00",
+        "file": "documents/LICENSE",
+        "fileExtension": "",
+        "fileHash": "f9f9ca2b33321473e39cfc9b29b0965c758b9e81",
+        "fileSize": 1071,
+        "filename": "LICENSE",
+        "id": "2",
+        "tags": [
+          "license",
+          "code"
+        ],
+        "title": "LICENSE",
+        "uploadedByUser": {
+          "username": "admin"
+        },
+        "url": "/documents/2/LICENSE"
+      }
+    ]
+  }
+}

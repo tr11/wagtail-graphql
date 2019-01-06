@@ -8,6 +8,19 @@ from wagtail.documents import urls as wagtaildocs_urls
 
 from django.views.decorators.csrf import csrf_exempt
 from graphene_django.views import GraphQLView
+from wagtail.images.views.serve import ServeView
+
+
+class CatchErrorsMiddleware(object):
+
+    def on_error(self, error):
+        import traceback
+        traceback.print_tb(error.__traceback__)
+        raise error
+
+    def resolve(self, next, root, info, **args):
+        return next(root, info, **args).catch(self.on_error)
+
 
 
 urlpatterns = [
@@ -17,7 +30,9 @@ urlpatterns = [
     url(r'^graphql', csrf_exempt(GraphQLView.as_view())),
 
     url(r'^graphql', csrf_exempt(GraphQLView.as_view())),
-    url(r'^graphiql', csrf_exempt(GraphQLView.as_view(graphiql=True, pretty=True))),
+    url(r'^graphiql', csrf_exempt(GraphQLView.as_view(graphiql=True, pretty=True, middleware=[CatchErrorsMiddleware]))),
+
+    url(r'^images/([^/]*)/(\d*)/([^/]*)/[^/]*$', ServeView.as_view(), name='wagtailimages_serve'),
 
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in

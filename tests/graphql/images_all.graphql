@@ -1,0 +1,31 @@
+query {
+  images {
+    id
+    title
+    file
+    width
+    height
+    createdAt
+    uploadedByUser {
+      id
+      username
+    }
+    fileSize
+    fileHash
+    tags
+    hasFocalPoint
+    focalPoint {
+      left
+      top
+      right
+      bottom
+      x
+      y
+      height
+      width
+    }
+    url
+    urlLink
+  }
+
+}

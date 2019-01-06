@@ -1,0 +1,26 @@
+{
+  "data": {
+    "image": {
+      "createdAt": "2019-01-05T20:40:58.197215+00:00",
+      "file": "original_images/download.png",
+      "fileHash": "52f99ff31278d071d8c55f55fb387bc618c35571",
+      "fileSize": 2185,
+      "focalPoint": null,
+      "hasFocalPoint": false,
+      "height": 73,
+      "id": "1",
+      "tags": [
+        "tag1",
+        "tag2"
+      ],
+      "title": "wagtail logo",
+      "uploadedByUser": {
+        "id": "1",
+        "username": "admin"
+      },
+      "url": "/images/KAMAET37GqDroKyRgjd5yY4CsvE=/1/original/",
+      "urlLink": "/media/images/download.original.png",
+      "width": 200
+    }
+  }
+}

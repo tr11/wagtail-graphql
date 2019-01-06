@@ -31,17 +31,19 @@ class SecondaryMenu(DjangoObjectType):
         only_fields = ['title', 'handle', 'heading', 'max_levels', 'menu_items']
 
 
-class MenusQueryMixin:
-    main_menu = graphene.List(Menu)
-    secondary_menu = graphene.Field(SecondaryMenu,
-                                    handle=graphene.String(required=True))
-    secondary_menus = graphene.List(SecondaryMenu)
+def MenusQueryMixin():
+    class Mixin:
+        main_menu = graphene.List(Menu)
+        secondary_menu = graphene.Field(SecondaryMenu,
+                                        handle=graphene.String(required=True))
+        secondary_menus = graphene.List(SecondaryMenu)
 
-    def resolve_main_menu(self, _info: ResolveInfo) -> List[MainMenu]:
-        return MainMenu.objects.all()
+        def resolve_main_menu(self, _info: ResolveInfo) -> List[MainMenu]:
+            return MainMenu.objects.all()
 
-    def resolve_secondary_menus(self, _info: ResolveInfo) -> List[FlatMenu]:
-        return FlatMenu.objects.all()
+        def resolve_secondary_menus(self, _info: ResolveInfo) -> List[FlatMenu]:
+            return FlatMenu.objects.all()
 
-    def resolve_secondary_menu(self, _info, handle: ResolveInfo) -> FlatMenu:
-        return FlatMenu.objects.filter(handle=handle).first()
+        def resolve_secondary_menu(self, _info, handle: ResolveInfo) -> FlatMenu:
+            return FlatMenu.objects.filter(handle=handle).first()
+    return Mixin

@@ -64,7 +64,7 @@ class PageInterface(graphene.Interface):
             return registry.pages[type(wagtailPage.objects.filter(id=instance).specific().first())]
         try:
             model = registry.pages[instance.content_type.model_class()]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             raise ValueError("Model %s is not a registered GraphQL type" % instance.content_type.model_class())
         return model
 
@@ -91,7 +91,7 @@ def convert_field_to_string(field, _registry=None):
     return List(String, description=field.help_text, required=not field.null)
 
 
-def _resolve_preview(request, view):
+def _resolve_preview(request, view):  # pragma: no cover
     from django.http import QueryDict
     page = view.get_page()
     post_data, timestamp = request.session.get(view.session_key, (None, None))
@@ -104,115 +104,120 @@ def _resolve_preview(request, view):
     return page
 
 
-class PagesQueryMixin:
-    if registry.pages:
-        class _Page(graphene.types.union.Union):
-            class Meta:
-                types = registry.pages.types
-        Page = _Page
-    else:
-        Page = PageInterface
+def PagesQueryMixin():
+    class Mixin:
+        if registry.pages:
+            class _Page(graphene.types.union.Union):
+                class Meta:
+                    types = registry.pages.types
+            Page = _Page
+        else:  # pragma: no cover
+            Page = PageInterface
 
-    pages = graphene.List(PageInterface,
-                          parent=graphene.Int())
-    page = graphene.Field(PageInterface,
-                          id=graphene.Int(),
-                          url=graphene.String(),
-                          revision=graphene.Int(),
-                          )
-    preview = graphene.Field(PageInterface,
-                             id=graphene.Int(required=True),
-                             )
-
-    preview_add = graphene.Field(PageInterface,
-                                 app_name=graphene.String(),
-                                 model_name=graphene.String(),
-                                 parent=graphene.Int(required=True),
+        pages = graphene.List(PageInterface,
+                              parent=graphene.Int())
+        page = graphene.Field(PageInterface,
+                              id=graphene.Int(),
+                              url=graphene.String(),
+                              revision=graphene.Int(),
+                              )
+        preview = graphene.Field(PageInterface,
+                                 id=graphene.Int(required=True),
                                  )
 
-    def resolve_pages(self, info: ResolveInfo, parent: int = None):
-        query = wagtailPage.objects
+        preview_add = graphene.Field(PageInterface,
+                                     app_name=graphene.String(),
+                                     model_name=graphene.String(),
+                                     parent=graphene.Int(required=True),
+                                     )
 
-        # prefetch specific type pages
-        selections = set(camelcase_to_underscore(f.name.value)
-                         for f in info.field_asts[0].selection_set.selections
-                         if not isinstance(f, InlineFragment))
-        for pf in registry.page_prefetch_fields.intersection(selections):
-            query = query.select_related(pf)
+        def resolve_pages(self, info: ResolveInfo, parent: int = None):
+            query = wagtailPage.objects
 
-        if parent is not None:
-            parent_page = wagtailPage.objects.filter(id=parent).first()
-            if parent_page is None:
-                raise ValueError(f'Page id={parent} not found.')
-            query = query.child_of(parent_page)
+            # prefetch specific type pages
+            selections = set(camelcase_to_underscore(f.name.value)
+                             for f in info.field_asts[0].selection_set.selections
+                             if not isinstance(f, InlineFragment))
+            for pf in registry.page_prefetch_fields.intersection(selections):
+                query = query.select_related(pf)
 
-        return with_page_permissions(
-            info.context,
-            query.specific()
-        ).live().order_by('path').all()
+            if parent is not None:
+                parent_page = wagtailPage.objects.filter(id=parent).first()
+                if parent_page is None:
+                    raise ValueError(f'Page id={parent} not found.')
+                query = query.child_of(parent_page)
 
-    def resolve_page(self, info: ResolveInfo, id: int = None, url: str = None, revision: int = None):
-        query = wagtailPage.objects
-        if id is not None:
-            query = query.filter(id=id)
-        elif url is not None:
-            url_prefix = url_prefix_for_site(info)
-            query = query.filter(url_path=url_prefix + url.rstrip('/') + '/')
-        else:
-            raise ValueError("One of 'id' or 'url' must be specified")
-        page = with_page_permissions(
-            info.context,
-            query.select_related('content_type').specific()
-        ).live().first()
+            return with_page_permissions(
+                info.context,
+                query.specific()
+            ).live().order_by('path').all()
 
-        if revision is not None:
-            if revision == -1:
-                rev = page.get_latest_revision()
-            else:
-                rev = page.revisions.filter(id=revision).first()
-            if not rev:
-                raise ValueError("Revision %d doesn't exist" % revision)
+        def resolve_page(self, info: ResolveInfo, id: int = None, url: str = None, revision: int = None):
+            query = wagtailPage.objects
+            if id is not None:
+                query = query.filter(id=id)
+            elif url is not None:
+                url_prefix = url_prefix_for_site(info)
+                query = query.filter(url_path=url_prefix + url.rstrip('/') + '/')
+            else:   # pragma: no cover
+                raise ValueError("One of 'id' or 'url' must be specified")
+            page = with_page_permissions(
+                info.context,
+                query.select_related('content_type').specific()
+            ).live().first()
 
-            page = rev.as_page_object()
-            page.revision = rev.id
+            if page is None:
+                return None
+
+            if revision is not None:
+                if revision == -1:
+                    rev = page.get_latest_revision()
+                else:
+                    rev = page.revisions.filter(id=revision).first()
+                if not rev:
+                    raise ValueError("Revision %d doesn't exist" % revision)
+
+                page = rev.as_page_object()
+                page.revision = rev.id
+                return page
+
             return page
 
-        if page is None:
-            return None
-        return page
+        def resolve_preview(self, info: ResolveInfo, id: int = None):   # pragma: no cover
+            from wagtail.admin.views.pages import PreviewOnEdit
+            request = info.context
+            view = PreviewOnEdit(args=('%d' % id, ), request=request)
+            return _resolve_preview(request, view)
 
-    def resolve_preview(self, info: ResolveInfo, id: int = None):
-        from wagtail.admin.views.pages import PreviewOnEdit
-        request = info.context
-        view = PreviewOnEdit(args=('%d' % id, ), request=request)
-        return _resolve_preview(request, view)
+        def resolve_preview_add(self, info: ResolveInfo, app_name: str = 'wagtailcore',
+                                model_name: str = 'page', parent: int = None):  # pragma: no cover
+            from wagtail.admin.views.pages import PreviewOnCreate
+            request = info.context
+            view = PreviewOnCreate(args=(app_name, model_name, str(parent)), request=request)
+            page = _resolve_preview(request, view)
+            page.id = 0  # force an id, since our schema assumes page.id is an Int!
+            return page
 
-    def resolve_preview_add(self, info: ResolveInfo, app_name: str = 'wagtailcore',
-                            model_name: str = 'page', parent: int = None):
-        from wagtail.admin.views.pages import PreviewOnCreate
-        request = info.context
-        view = PreviewOnCreate(args=(app_name, model_name, str(parent)), request=request)
-        page = _resolve_preview(request, view)
-        page.id = 0  # force an id, since our schema assumes page.id is an Int!
-        return page
+        # Show in Menu
+        show_in_menus = graphene.List(PageLink)
 
-    # Show in Menu
-    show_in_menus = graphene.List(PageLink)
-
-    def resolve_show_in_menus(self, info: ResolveInfo):
-        return with_page_permissions(
-            info.context,
-            wagtailPage.objects.filter(show_in_menus=True)
-        ).live().order_by('path')
+        def resolve_show_in_menus(self, info: ResolveInfo):
+            return with_page_permissions(
+                info.context,
+                wagtailPage.objects.filter(show_in_menus=True)
+            ).live().order_by('path')
+    return Mixin
 
 
-class InfoQueryMixin:
-    # Root
-    root = graphene.Field(Site)
+def InfoQueryMixin():
+    class Mixin:
+        # Root
+        root = graphene.Field(Site)
 
-    def resolve_root(self, info: ResolveInfo):
-        user = info.context.user
-        if user.is_superuser:
-            return info.context.site
-        else:
-            return None
+        def resolve_root(self, info: ResolveInfo):
+            user = info.context.user
+            if user.is_superuser:
+                return info.context.site
+            else:
+                return None
+    return Mixin

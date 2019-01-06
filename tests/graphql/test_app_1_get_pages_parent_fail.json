@@ -1,0 +1,19 @@
+{
+  "data": {
+    "pages": null
+  },
+  "errors": [
+    {
+      "locations": [
+        {
+          "column": 3,
+          "line": 2
+        }
+      ],
+      "message": "Page id=300 not found.",
+      "path": [
+        "pages"
+      ]
+    }
+  ]
+}

@@ -9,6 +9,8 @@ from graphene_django.converter import String
 # app
 from .registry import registry
 from .actions import add_apps
+# add all the apps from the settings
+add_apps()
 # mixins
 from .types import (
     AuthQueryMixin, LoginMutation, LogoutMutation,
@@ -21,22 +23,20 @@ from .types import (
     SnippetsQueryMixin,
 )
 
-# api version
-GRAPHQL_API_FORMAT = (0, 1, 3)
 
-# add all the apps from the settings
-add_apps()
+# api version
+GRAPHQL_API_FORMAT = (0, 2, 0)
 
 
 class Query(graphene.ObjectType,
-            AuthQueryMixin,
-            DocumentQueryMixin,
-            ImageQueryMixin,
-            InfoQueryMixin,
-            MenusQueryMixin,
-            PagesQueryMixin,
-            SettingsQueryMixin,
-            SnippetsQueryMixin,
+            AuthQueryMixin(),
+            DocumentQueryMixin(),
+            ImageQueryMixin(),
+            InfoQueryMixin(),
+            MenusQueryMixin(),
+            PagesQueryMixin(),
+            SettingsQueryMixin(),
+            SnippetsQueryMixin(),
             ):
     # API Version
     format = graphene.Field(String)

@@ -18,8 +18,7 @@ from wagtail.contrib.settings.models import BaseSetting
 # app
 from .registry import registry
 from .permissions import with_page_permissions
-from .types.settings import settings_registry
-from .settings import url_prefix_for_site
+from .settings import url_prefix_for_site, settings_registry
 # app types
 from .types import (
     PageInterface,

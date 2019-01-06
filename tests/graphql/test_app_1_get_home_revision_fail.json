@@ -1,0 +1,19 @@
+{
+  "data": {
+    "page": null
+  },
+  "errors": [
+    {
+      "locations": [
+        {
+          "column": 3,
+          "line": 2
+        }
+      ],
+      "message": "Revision 0 doesn't exist",
+      "path": [
+        "page"
+      ]
+    }
+  ]
+}

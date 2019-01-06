@@ -7,15 +7,17 @@ from graphql.execution.base import ResolveInfo
 from .core import User
 
 
-class AuthQueryMixin:
-    # User information
-    user = graphene.Field(User)
+def AuthQueryMixin():
+    class Mixin:
+        # User information
+        user = graphene.Field(User)
 
-    def resolve_user(self, info: ResolveInfo):
-        user = info.context.user
-        if isinstance(user, AnonymousUser):
-            return wagtailUser(id='-1', username='anonymous')
-        return user
+        def resolve_user(self, info: ResolveInfo):
+            user = info.context.user
+            if isinstance(user, AnonymousUser):
+                return wagtailUser(id='-1', username='anonymous')
+            return user
+    return Mixin
 
 
 class LoginMutation(graphene.Mutation):

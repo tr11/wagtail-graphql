@@ -1,8 +1,8 @@
 import pytest
 from wagtail_graphql import __version__
 
-EXPECTED_VERSION = '0.1.3'
-EXPECTED_API_VERSION = '0.1.3'
+EXPECTED_VERSION = '0.2.0'
+EXPECTED_API_VERSION = '0.2.0'
 
 
 def test_version_import():
@@ -49,4 +49,54 @@ def test_types(client):
         'Page',
         'LoginMutation',
         'LogoutMutation',
+        'Test_app_2PageTypeAAnotherType',
+        'Test_app_2PageTypeA',
+        'StringBlock',
+        'Test_app_2PageTypeAStreamfieldType',
+        'IntBlock',
+        'Time',
+        'GenericScalar',
+        'Test_app_2PageTypeAThirdType',
+        'DateBlock',
+        'GenericScalarBlock',
+        'BooleanBlock',
+        'UUID',
+        'FloatBlock',
+        'DateTimeBlock',
+        'TimeBlock',
+        'Snippet',
+        'Test_app_2Advert',
+        'MainMenuMaxLevels',
+        'FlatMenuMaxLevels',
+        'SecondaryMenuItem',
+        'MenuItem',
+        'Menu',
+        'SecondaryMenu',
+        'Test_app_2PageTypeAAnotherCustomType',
+        'Test_app_2PageTypeACustomType',
+        'PageBlock',
+        'Test_app_2CustomBlockInner',
+        'Test_app_2PageTypeALinksType',
+        'Test_app_2CustomBlock1',
+        'Test_app_2CustomBlock2',
+        'Test_app_2App2Snippet',
+        'Test_app_2App2SnippetBlock',
+        'ImageBlock',
+        'DateTimeListBlock',
+        'Test_app_2App2SnippetListBlock',
+        'Test_app_2PageTypeALinksListType',
+        'Test_app_2PageTypeAListsType',
+        'Test_app_2CustomBlock2ListBlock',
+        'Test_app_2CustomBlock1ListBlock',
+        'FloatListBlock',
+        'TimeListBlock',
+        'DateListBlock',
+        'PageInterfaceListBlock',
+        'ImageListBlock',
+        'Test_app_2PageTypeACustomListsType',
+        'IntListBlock',
+        'StringListBlock',
+        'DateTimeListBlock',
+        'Test_app_2App2SnippetListBlock',
+
     }

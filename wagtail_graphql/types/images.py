@@ -84,26 +84,28 @@ def generate_image_url(image: wagtailImage, filter_spec: str) -> str:
     return url
 
 
-class ImageQueryMixin:
-    images = graphene.List(Image)
-    image = graphene.Field(Image,
-                           id=graphene.Int(required=True))
+def ImageQueryMixin():
+    class Mixin:
+        images = graphene.List(Image)
+        image = graphene.Field(Image,
+                               id=graphene.Int(required=True))
 
-    def resolve_images(self, info: ResolveInfo):
-        return with_collection_permissions(
-            info.context,
-            gql_optimizer.query(
-                wagtailImage.objects.all(),
-                info
+        def resolve_images(self, info: ResolveInfo):
+            return with_collection_permissions(
+                info.context,
+                gql_optimizer.query(
+                    wagtailImage.objects.all(),
+                    info
+                )
             )
-        )
 
-    def resolve_image(self, info: ResolveInfo, id: int):
-        image = with_collection_permissions(
-            info.context,
-            gql_optimizer.query(
-                wagtailImage.objects.filter(id=id),
-                info
-            )
-        ).first()
-        return image
+        def resolve_image(self, info: ResolveInfo, id: int):
+            image = with_collection_permissions(
+                info.context,
+                gql_optimizer.query(
+                    wagtailImage.objects.filter(id=id),
+                    info
+                )
+            ).first()
+            return image
+    return Mixin

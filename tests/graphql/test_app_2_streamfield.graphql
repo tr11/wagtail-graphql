@@ -1,0 +1,212 @@
+{
+  page(id: 4) {
+    __typename
+    id
+    title
+    urlPath
+    contentType
+    slug
+    path
+    depth
+    seoTitle
+    numchild
+    revision
+    firstPublishedAt
+    lastPublishedAt
+    latestRevisionCreatedAt
+    live
+    goLiveAt
+    expireAt
+    expired
+    locked
+    draftTitle
+    hasUnpublishedChanges
+    ... on Test_app_2PageTypeA {
+      streamfield {
+        __typename
+        ... on StringBlock {
+          val: value
+          field
+        }
+        ... on IntBlock {
+          value
+          field
+        }
+      }
+      another {
+        __typename
+        ... on StringBlock {
+          val: value
+          field
+        }
+        ... on IntBlock {
+          value
+          field
+        }
+      }
+      third {
+        __typename
+        ... on BooleanBlock {
+          valBool: value
+          field
+        }
+        ... on StringBlock {
+          valString: value
+          field
+        }
+        ... on IntBlock {
+          valInt: value
+          field
+        }
+        ... on FloatBlock {
+          valFloat: value
+          field
+        }
+        ... on DateBlock {
+          valDate: value
+          field
+        }
+        ... on TimeBlock {
+          valTime: value
+          field
+        }
+        ... on DateTimeBlock {
+          valDatetime: value
+          field
+        }
+      }
+      custom {
+        __typename
+        ... on Test_app_2CustomBlock1 {
+          fieldChar
+          fieldText
+          fieldEmail
+          fieldInt
+          fieldFloat
+          fieldDecimal
+          fieldRegex
+          fieldUrl
+          fieldBool
+          fieldDate
+          fieldTime
+          fieldDatetime
+          fieldRich
+          fieldRaw
+          fieldQuote
+          fieldChoice
+          fieldStatic
+          fieldList
+        }
+        ... on Test_app_2CustomBlock2 {
+          fieldLink {
+            title
+          }
+          fieldLinkList {
+            title
+          }
+          fieldImage {
+            title
+          }
+          fieldImageList {
+            title
+            width
+          }
+          fieldSnippet {
+            text
+          }
+          fieldSnippetList {
+            text
+          }
+        }
+      }
+      links {
+        __typename
+        ... on PageBlock {
+          value {
+            title
+            id
+          }
+          field
+        }
+        ... on ImageBlock {
+          value {
+            title
+            width
+          }
+          field
+        }
+        ... on Test_app_2App2SnippetBlock {
+          value {
+            text
+          }
+          field
+        }
+      }
+      lists {
+        __typename
+        ... on StringListBlock {
+          value
+          field
+        }
+        ... on DateTimeListBlock {
+          valDateTime: value
+          field
+        }
+        ... on TimeListBlock {
+          valTime: value
+          field
+        }
+        ... on DateListBlock {
+          valDate: value
+          field
+        }
+        ... on FloatListBlock {
+          valFloat: value
+          field
+        }
+        ... on IntListBlock {
+          valInt: value
+          field
+        }
+      }
+
+      linksList {
+        __typename
+        ... on ImageListBlock {
+          value {
+            title
+            width
+          }
+          field
+        }
+        ... on PageInterfaceListBlock {
+          value {
+            title
+          }
+          field
+        }
+        ... on Test_app_2App2SnippetListBlock {
+          value {
+            text
+          }
+          field
+        }
+      }
+
+      customLists {
+        __typename
+        ... on Test_app_2CustomBlock1ListBlock {
+          value {
+            fieldChar
+            fieldText
+            fieldDecimal
+            fieldDate
+            fieldDatetime
+            fieldTime
+          }
+          field
+        }
+      }
+    }
+  }
+}

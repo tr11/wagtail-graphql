@@ -8,9 +8,10 @@ from .core import (
     PagesQueryMixin,
 )
 from .auth import (
-    AuthQueryMixin,
     LoginMutation,
     LogoutMutation,
+    # mixins
+    AuthQueryMixin,
 )
 from .documents import (
     Document,
@@ -25,6 +26,8 @@ from .images import (
 )
 from .settings import Settings, SettingsQueryMixin
 from .snippets import SnippetsQueryMixin
+# noinspection PyUnresolvedReferences
+from . import converters
 
 __all__ = [
     # core
@@ -59,7 +62,7 @@ __all__ = [
 try:
     from django.conf import settings
     if 'wagtailmenus' not in settings.INSTALLED_APPS:
-        raise ImportError()
+        raise ImportError()  # pragma: no cover
 
     from .menus import MenusQueryMixin, Menu, MenuItem, SecondaryMenu, SecondaryMenuItem  # noqa: F401
 
@@ -72,9 +75,10 @@ try:
     ])
 
     HAS_WAGTAILMENUS = True
-except ImportError:
-    # type: ignore
-    class _MenusQueryMixin:
-        pass
-    MenusQueryMixin = _MenusQueryMixin
+except ImportError:  # pragma: no cover
+    def MenusQueryMixin():
+        # type: ignore
+        class _MenusQueryMixin:
+            pass
+        return _MenusQueryMixin
     HAS_WAGTAILMENUS = False

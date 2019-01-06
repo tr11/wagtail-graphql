@@ -1,0 +1,22 @@
+{
+  "data": {
+    "document": {
+      "createdAt": "2019-01-06T00:18:43.593597+00:00",
+      "file": "documents/README.md",
+      "fileExtension": "md",
+      "fileHash": "31d1a4311d0097df396dbe4dae9524eb8cb58d0f",
+      "fileSize": 3768,
+      "filename": "README.md",
+      "id": "1",
+      "tags": [
+        "code",
+        "readme"
+      ],
+      "title": "README.md",
+      "uploadedByUser": {
+        "username": "admin"
+      },
+      "url": "/documents/1/README.md"
+    }
+  }
+}

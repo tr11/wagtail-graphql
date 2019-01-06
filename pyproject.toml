@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wagtail-graphql"
-version = "0.1.3"
+version = "0.2.0"
 description = "An app to automatically add graphql support to a Wagtail website"
 license = "MIT"
 readme = "README.md"
@@ -17,6 +17,7 @@ graphene_django = "^2.2"
 graphene_django_optimizer = "^0.3.5"
 wagtail = "^2.3"
 wagtailmenus = {version = "^2.12", optional = true}
+python-dateutil = "^2.7"
 
 [tool.poetry.extras]
 menus = ["wagtailmenus"]

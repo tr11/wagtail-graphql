@@ -1,0 +1,35 @@
+{
+  "data": {
+    "image": {
+      "createdAt": "2019-01-05T20:44:46.356363+00:00",
+      "file": "original_images/download_hxHClaK.png",
+      "fileHash": "52f99ff31278d071d8c55f55fb387bc618c35571",
+      "fileSize": 2185,
+      "focalPoint": {
+        "bottom": 72,
+        "height": 73,
+        "left": 0,
+        "right": 66,
+        "top": 0,
+        "width": 66,
+        "x": 33,
+        "y": 36
+      },
+      "hasFocalPoint": true,
+      "height": 73,
+      "id": "2",
+      "tags": [
+        "tag4",
+        "tag3"
+      ],
+      "title": "wagtail logo with focal point",
+      "uploadedByUser": {
+        "id": "1",
+        "username": "admin"
+      },
+      "url": "/images/JKHgyjh9SMorj6s8XUE6ths3on0=/2/fill-66x73-c100/",
+      "urlLink": "/media/images/download_hxHClaK.51fa8394.fill-66x73-c100.png",
+      "width": 200
+    }
+  }
+}

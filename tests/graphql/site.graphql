@@ -1,0 +1,12 @@
+query {
+  root {
+    id
+    hostname
+    port
+    siteName
+    rootPage {
+      title
+    }
+    isDefaultSite
+  }
+}

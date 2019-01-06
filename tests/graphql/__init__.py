@@ -16,8 +16,17 @@ def assert_query(client, *name):
     assert response.status_code == 200
     response_json = response.json()
     assert 'errors' not in response_json
-
     print(result)
     print(response_json)
+    assert result == response_json
 
+
+def assert_query_fail(client, *name):
+    query, result = get_query(*name)
+    response = client.post('/graphql', {"query": query})
+    assert response.status_code == 200
+    response_json = response.json()
+    assert 'errors' in response_json
+    print(result)
+    print(response_json)
     assert result == response_json
