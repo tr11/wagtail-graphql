@@ -1,3 +1,11 @@
+<img src="https://wagtail.io/static/img/wagtail.dbf60545a188.svg" height="100px">
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+<img src="https://graphql.org/img/logo.svg" height="100px">
+<hr/>
+
 # wagtail-graphql
 > An app to automatically add GraphQL support to a Wagtail website
 
