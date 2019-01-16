@@ -1,9 +1,4 @@
-<img src="https://wagtail.io/static/img/wagtail.dbf60545a188.svg" height="100px">
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-<img src="https://graphql.org/img/logo.svg" height="100px">
+<img src="https://wagtail.io/static/img/wagtail.dbf60545a188.svg" height="100px">&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://graphql.org/img/logo.svg" height="100px">
 <hr/>
 
 # wagtail-graphql
