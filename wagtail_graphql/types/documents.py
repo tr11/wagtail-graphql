@@ -23,6 +23,7 @@ class Document(DjangoObjectType):
     def resolve_tags(self: wagtailDocument, _info: ResolveInfo):
         return self.tags.all()
 
+
 def DocumentQueryMixin():
     class Mixin:
         documents = graphene.List(Document)

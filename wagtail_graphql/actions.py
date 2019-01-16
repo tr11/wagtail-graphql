@@ -38,8 +38,7 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
                     for field_ in self.form_fields.all())
 
     dict_params['resolve_form_fields'] = form_fields
-    tp = type(node, (DjangoObjectType,), dict_params)
-    registry.pages[cls] = tp
+    registry.pages[cls] = type(node, (DjangoObjectType,), dict_params)
 
     args = type("Arguments", (), {'values': GenericScalar(),
                                   "url": graphene.String(required=True)})
@@ -67,7 +66,7 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
         "result": graphene.String(),
         "errors": graphene.List(FormError),
     }
-    tp = type(node + "Mutation", (graphene.Mutation,), dict_params)  # type: Type[Mutation]
+    tp = type(node + "Mutation", (graphene.Mutation,), dict_params)  # type: Type[graphene.Mutation]
     registry.forms[node] = tp
     return tp
 
@@ -75,9 +74,9 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
 def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[DjangoObjectType]:
     registry.page_prefetch_fields.add(cls.__name__.lower())
     dict_params['Meta'].interfaces = (PageInterface,)
-    tp = type(node, (DjangoObjectType,), dict_params)
+    tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.pages[cls] = tp
-    return tp  # type: Type[DjangoObjectType]
+    return tp
 
 
 def _add_setting(cls: Type[BaseSetting], node: str, dict_params: dict) -> Type[DjangoObjectType]:
@@ -100,7 +99,7 @@ def _add_django_model(_cls: type, node: str, dict_params: dict) -> Type[DjangoOb
     return tp
 
 
-def _add_streamfields(cls: type, node: str, dict_params: dict, app: str, prefix: str) -> None:
+def _add_streamfields(cls: wagtailPage, node: str, dict_params: dict, app: str, prefix: str) -> None:
     from .types.streamfield import (
         block_handler,
         stream_field_handler,
@@ -169,7 +168,7 @@ def add_app(app: str, prefix: str = '{app}') -> None:
     models = [mdl.model_class()
               for mdl in ContentType.objects.filter(app_label=app).all()]
     to_register = [x for x in snippets + models if x is not None]
-    registered = set()
+    registered: Set = set()
 
     for cls in to_register:
         _register_model(registered, cls, cls in snippets, app, prefix)

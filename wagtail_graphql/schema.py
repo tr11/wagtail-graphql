@@ -1,3 +1,5 @@
+# typings
+from typing import Any  # noqa
 # django
 from django.utils.text import camel_case_to_spaces
 # graphql
@@ -12,7 +14,7 @@ from .actions import add_apps
 # add all the apps from the settings
 add_apps()
 # mixins
-from .types import (
+from .types import (  # noqa: E402
     AuthQueryMixin, LoginMutation, LogoutMutation,
     DocumentQueryMixin,
     ImageQueryMixin,
@@ -27,16 +29,26 @@ from .types import (
 # api version
 GRAPHQL_API_FORMAT = (0, 2, 0)
 
+# mixins
+AuthQueryMixin_ = AuthQueryMixin()          # type: Any
+DocumentQueryMixin_ = DocumentQueryMixin()  # type: Any
+ImageQueryMixin_ = ImageQueryMixin()        # type: Any
+InfoQueryMixin_ = InfoQueryMixin()          # type: Any
+MenusQueryMixin_ = MenusQueryMixin()        # type: Any
+PagesQueryMixin_ = PagesQueryMixin()        # type: Any
+SettingsQueryMixin_ = SettingsQueryMixin()  # type: Any
+SnippetsQueryMixin_ = SnippetsQueryMixin()  # type: Any
+
 
 class Query(graphene.ObjectType,
-            AuthQueryMixin(),
-            DocumentQueryMixin(),
-            ImageQueryMixin(),
-            InfoQueryMixin(),
-            MenusQueryMixin(),
-            PagesQueryMixin(),
-            SettingsQueryMixin(),
-            SnippetsQueryMixin(),
+            AuthQueryMixin_,
+            DocumentQueryMixin_,
+            ImageQueryMixin_,
+            InfoQueryMixin_,
+            MenusQueryMixin_,
+            PagesQueryMixin_,
+            SettingsQueryMixin_,
+            SnippetsQueryMixin_
             ):
     # API Version
     format = graphene.Field(String)

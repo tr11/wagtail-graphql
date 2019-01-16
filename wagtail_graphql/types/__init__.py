@@ -27,7 +27,7 @@ from .images import (
 from .settings import Settings, SettingsQueryMixin
 from .snippets import SnippetsQueryMixin
 # noinspection PyUnresolvedReferences
-from . import converters
+from . import converters    # noqa: F401
 
 __all__ = [
     # core

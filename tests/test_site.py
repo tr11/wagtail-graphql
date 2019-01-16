@@ -15,4 +15,3 @@ def test_site_fail(client):
     response = client.post('/graphql', {"query": 'query {root { id } }'})
     assert response.status_code == 200
     assert {'data': {'root': None}} == response.json()
-

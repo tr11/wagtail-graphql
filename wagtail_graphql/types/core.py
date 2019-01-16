@@ -104,7 +104,7 @@ def _resolve_preview(request, view):  # pragma: no cover
     return page
 
 
-def PagesQueryMixin():
+def PagesQueryMixin():  # noqa: C901
     class Mixin:
         if registry.pages:
             class _Page(graphene.types.union.Union):
@@ -183,7 +183,7 @@ def PagesQueryMixin():
 
             return page
 
-        def resolve_preview(self, info: ResolveInfo, id: int = None):   # pragma: no cover
+        def resolve_preview(self, info: ResolveInfo, id: int):   # pragma: no cover
             from wagtail.admin.views.pages import PreviewOnEdit
             request = info.context
             view = PreviewOnEdit(args=('%d' % id, ), request=request)

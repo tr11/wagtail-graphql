@@ -131,24 +131,29 @@ def _list_block(typ):
     return tp
 
 
+def _resolve_list_block_scalar(key, type_, of_type):
+    type_str = str(of_type)
+    if type_str == 'Date' or type_str == 'DateTime':
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=list(dtparse(s) for s in self), field=key)
+    elif type_str == 'Time':
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=list(datetime.time.fromisoformat(s) for s in self), field=key)
+    else:
+        def resolve(self, _info: ResolveInfo):
+            return type_(value=list(s for s in self), field=key)
+    return resolve
+
+
 def _resolve_list_block(key, type_, of_type):
     if issubclass(of_type, Scalar):
-        type_str = str(of_type)
-        if type_str == 'Date' or type_str == 'DateTime':
-            def resolve(self, _info: ResolveInfo):
-                return type_(value=list(dtparse(s) for s in self), field=key)
-        elif type_str == 'Time':
-            def resolve(self, _info: ResolveInfo):
-                return type_(value=list(datetime.time.fromisoformat(s) for s in self), field=key)
-        else:
-            def resolve(self, _info: ResolveInfo):
-                return type_(value=list(s for s in self), field=key)
+        resolve = _resolve_list_block_scalar(key, type_, of_type)
     elif of_type == Image:
         def resolve(self, info: ResolveInfo):
             return type_(value=list(_resolve_image(s, info) for s in self), field=key)
     elif of_type == PageInterface:
-            def resolve(self, info: ResolveInfo):
-                return type_(value=list(_resolve_page(s, info) for s in self), field=key)
+        def resolve(self, info: ResolveInfo):
+            return type_(value=list(_resolve_page(s, info) for s in self), field=key)
     elif of_type in registry.snippets.values():
         def resolve(self, info: ResolveInfo):
             info.return_type = of_type
@@ -160,14 +165,8 @@ def _resolve_list_block(key, type_, of_type):
     return resolve
 
 
-def stream_field_handler(stream_field_name: str, field_name: str, block_type_handlers: dict) -> StreamFieldHandlerType:
-    # add Generic Scalars (default)
-    if settings.LOAD_GENERIC_SCALARS:
-        _scalar_block(GenericScalar)
-
+def _create_root_blocks(block_type_handlers: dict):
     for k, t in block_type_handlers.items():
-        # Unions must reference NamedTypes, so for scalar types we need to create a new type to
-        # encapsulate scalars, page links, images, snippets
         if not isinstance(t, tuple) and issubclass(t, Scalar):
             typ = _scalar_block(t)
             block_type_handlers[k] = typ, _resolve_scalar(k, typ)
@@ -184,6 +183,40 @@ def stream_field_handler(stream_field_name: str, field_name: str, block_type_han
             typ = _snippet_block(t[0])
             block_type_handlers[k] = typ, _resolve_snippet_block(k, typ, t[0])
 
+
+def convert_block(block, block_type_handlers: dict, info: ResolveInfo, is_lazy=True):
+    if is_lazy:
+        block_type = block.get('type')
+        value = block.get('value')
+    else:
+        block_type, value = block[:2]
+    if block_type in block_type_handlers:
+        handler = block_type_handlers[block_type]
+        if isinstance(handler, tuple):
+            tp, resolver = handler
+            return resolver(value, info)
+        else:
+            if isinstance(value, dict):
+                return handler(**value)
+            else:
+                raise NotImplementedError()  # pragma: no cover
+    else:
+        raise NotImplementedError()  # pragma: no cover
+
+
+def _resolve_type(self, _info: ResolveInfo):
+    return self.__class__
+
+
+def stream_field_handler(stream_field_name: str, field_name: str, block_type_handlers: dict) -> StreamFieldHandlerType:
+    # add Generic Scalars (default)
+    if settings.LOAD_GENERIC_SCALARS:
+        _scalar_block(GenericScalar)
+
+    # Unions must reference NamedTypes, so for scalar types we need to create a new type to
+    # encapsulate scalars, page links, images, snippets
+    _create_root_blocks(block_type_handlers)
+
     types_ = list(block_type_handlers.values())
     for i, t in enumerate(types_):
         if isinstance(t, tuple):
@@ -192,40 +225,18 @@ def stream_field_handler(stream_field_name: str, field_name: str, block_type_han
     class Meta:
         types = tuple(set(types_))
 
-    def resolve_type(self, _info: ResolveInfo):
-        return self.__class__
-
     stream_field_type = type(
         stream_field_name + "Type",
         (graphene.Union, ),
         {
             'Meta': Meta,
-            'resolve_type': resolve_type
+            'resolve_type': _resolve_type
         }
     )
 
-    def convert_block(block, info: ResolveInfo, is_lazy=True):
-        if is_lazy:
-            block_type = block.get('type')
-            value = block.get('value')
-        else:
-            block_type, value = block[:2]
-        if block_type in block_type_handlers:
-            handler = block_type_handlers.get(block_type)
-            if isinstance(handler, tuple):
-                tp, resolver = handler
-                return resolver(value, info)
-            else:
-                if isinstance(value, dict):
-                    return handler(**value)
-                else:
-                    raise NotImplementedError()  # pragma: no cover
-        else:
-            raise NotImplementedError()  # pragma: no cover
-
     def resolve_field(self, info: ResolveInfo):
         field = getattr(self, field_name)
-        return [convert_block(block, info, field.is_lazy) for block in field.stream_data]
+        return [convert_block(block, block_type_handlers, info, field.is_lazy) for block in field.stream_data]
 
     return graphene.List(stream_field_type), resolve_field
 
@@ -310,7 +321,7 @@ def block_handler(block: Block, app, prefix=''):
             handler = GenericScalar
 
     if cls == wagtail.snippets.blocks.SnippetChooserBlock:
-        handler = (handler[0](block), handler[1])
+        handler = (handler[0](block), handler[1])   # type: ignore
 
     return handler
 
