@@ -2,7 +2,7 @@
 import string
 from typing import Type, Set
 # django
-from django.utils.text import capfirst
+from django.utils.text import capfirst, camel_case_to_spaces
 # graphene
 import graphene
 from graphene.types.generic import GenericScalar
@@ -34,7 +34,10 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
     dict_params['form_fields'] = graphene.List(FormField)
 
     def form_fields(self, _info):
-        return list(FormField(name=field_.clean_name, field_type=field_.field_type)
+        return list(FormField(name=field_.clean_name, field_type=field_.field_type,
+                              label=field_.label, required=field_.required,
+                              help_text=field_.help_text, choices=field_.choices,
+                              default_value=field_.default_value)
                     for field_ in self.form_fields.all())
 
     dict_params['resolve_form_fields'] = form_fields
@@ -52,6 +55,8 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
             query.specific()
         ).live().first()
         user = info.context.user
+        # convert camelcase to dashes
+        values = {camel_case_to_spaces(k).replace(' ', '-'): v for k, v in values.items()}
         form = instance.get_form(values, None, page=instance, user=user)
         if form.is_valid():
             # form_submission
