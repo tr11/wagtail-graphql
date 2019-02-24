@@ -54,6 +54,8 @@ class PageInterface(graphene.Interface):
     draft_title = graphene.String()
     has_unpublished_changes = graphene.Boolean()
 
+    children = graphene.List(lambda *x: PageInterface)
+
     def resolve_content_type(self, _info: ResolveInfo):
         self.content_type = cast(ContentType, self.content_type)
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
@@ -73,6 +75,13 @@ class PageInterface(graphene.Interface):
         url_prefix = url_prefix_for_site(info)
         url = self.url_path if not self.url_path.startswith(url_prefix) else self.url_path[len(url_prefix):]
         return url.rstrip('/')
+
+    def resolve_children(self, info: ResolveInfo):
+        query = wagtailPage.objects.child_of(self)
+        return with_page_permissions(
+            info.context,
+            query.specific()
+        ).live().order_by('path').all()
 
 
 class PageLink(DjangoObjectType):
