@@ -7,6 +7,18 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail.core.blocks import PageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtail.contrib.settings.models import BaseSetting, register_setting
+
+
+@register_setting
+class SiteBranding(BaseSetting):
+    site_setting1 = models.TextField()
+    site_setting2 = models.TextField()
+
+    panels = [
+        FieldPanel('site_setting1'),
+        FieldPanel('site_setting2'),
+    ]
 
 
 @register_snippet
@@ -139,4 +151,5 @@ class PageTypeA(Page):
         StreamFieldPanel('links_list'),
         StreamFieldPanel('custom_lists'),
     ]
+
 

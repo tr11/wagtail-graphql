@@ -1,0 +1,77 @@
+{
+  "data": {
+    "mainMenu": [
+      {
+        "maxLevels": "A_2",
+        "menuItems": [
+          {
+            "allowSubnav": true,
+            "handle": "",
+            "id": "1",
+            "linkPage": {
+              "urlPath": ""
+            },
+            "linkText": "",
+            "linkUrl": null,
+            "sortOrder": 0,
+            "urlAppend": ""
+          },
+          {
+            "allowSubnav": true,
+            "handle": "",
+            "id": "2",
+            "linkPage": {
+              "urlPath": "/test"
+            },
+            "linkText": "",
+            "linkUrl": null,
+            "sortOrder": 1,
+            "urlAppend": ""
+          }
+        ]
+      }
+    ],
+    "secondaryMenu": {
+      "handle": "menu1handle",
+      "heading": "",
+      "maxLevels": "A_1",
+      "menuItems": [
+        {
+          "allowSubnav": true,
+          "handle": "",
+          "id": "1",
+          "linkPage": {
+            "urlPath": ""
+          },
+          "linkText": "",
+          "linkUrl": null,
+          "sortOrder": 0,
+          "urlAppend": ""
+        }
+      ],
+      "title": "menu1"
+    },
+    "secondaryMenus": [
+      {
+        "handle": "menu1handle",
+        "heading": "",
+        "maxLevels": "A_1",
+        "menuItems": [
+          {
+            "allowSubnav": true,
+            "handle": "",
+            "id": "1",
+            "linkPage": {
+              "urlPath": ""
+            },
+            "linkText": "",
+            "linkUrl": null,
+            "sortOrder": 0,
+            "urlAppend": ""
+          }
+        ],
+        "title": "menu1"
+      }
+    ]
+  }
+}

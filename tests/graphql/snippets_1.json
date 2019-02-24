@@ -2,13 +2,13 @@
   "data": {
     "snippets": [
       {
-        "__typename": "Test_app_2Advert",
+        "__typename": "Test_app_1Advert",
         "id": "1",
         "text": "TEST",
         "url": "http://www.google.com"
       },
       {
-        "__typename": "Test_app_2Advert",
+        "__typename": "Test_app_1Advert",
         "id": "2",
         "text": "ANOTHER",
         "url": "http://www.google.com/something"

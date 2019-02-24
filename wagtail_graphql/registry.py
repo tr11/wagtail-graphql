@@ -67,7 +67,7 @@ class Registry:
         models.update(self.snippets)
         models.update(self.forms)
         models.update(self.django)
-        models.update(self.settings)
+        models.update((k, v[0]) for k, v in self.settings.items())
         models.update((k, v) for k, v in self.blocks.items() if not isinstance(v, tuple))
         models.update(self.scalar_blocks.items())
         return models

@@ -1,0 +1,7 @@
+{
+  showInMenus {
+    path
+    id
+    urlPath
+  }
+}

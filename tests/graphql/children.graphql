@@ -1,0 +1,10 @@
+{
+  page(url:"/") {
+    children {
+      id
+      title
+      urlPath
+      path
+    }
+  }
+}

@@ -1,0 +1,53 @@
+query {
+  mainMenu {
+    maxLevels
+    menuItems {
+      id
+      sortOrder
+      linkPage {
+        urlPath
+      }
+      linkUrl
+      urlAppend
+      handle
+      linkText
+      allowSubnav
+    }
+  }
+  secondaryMenus {
+    title
+    handle
+    heading
+    maxLevels
+    menuItems {
+      id
+      sortOrder
+      linkPage {
+        urlPath
+      }
+      linkUrl
+      urlAppend
+      handle
+      linkText
+      allowSubnav
+    }
+  }
+  secondaryMenu(handle: "menu1handle") {
+    title
+    handle
+    heading
+    maxLevels
+    menuItems {
+      id
+      sortOrder
+      linkPage {
+        urlPath
+      }
+      linkUrl
+      urlAppend
+      handle
+      linkText
+      allowSubnav
+    }
+  }
+}

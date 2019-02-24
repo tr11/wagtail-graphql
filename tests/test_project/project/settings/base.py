@@ -30,7 +30,10 @@ INSTALLED_APPS = [
     'wagtail_graphql',
     'graphene_django',
 
+    'wagtail.contrib.modeladmin',
     'wagtailmenus',
+
+    'wagtail.contrib.settings',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',

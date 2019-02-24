@@ -1,0 +1,9 @@
+{
+  "data": {
+    "settings": {
+      "id": "1",
+      "siteSetting1": "this is setting 1",
+      "siteSetting2": "this is setting 2"
+    }
+  }
+}

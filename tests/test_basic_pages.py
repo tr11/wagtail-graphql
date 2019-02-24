@@ -47,3 +47,18 @@ def test_get_pages_parent(client):
 @pytest.mark.django_db
 def test_get_pages_parent_fail(client):
     assert_query_fail(client, 'test_app_1', 'get', 'pages', 'parent', 'fail')
+
+
+@pytest.mark.django_db
+def test_get_children(client):
+    assert_query(client, 'children')
+
+
+@pytest.mark.django_db
+def test_show_in_menus(client):
+    assert_query(client, 'showmenus')
+
+
+@pytest.mark.django_db
+def test_prefetch(client):
+    assert_query(client, 'prefetch')

@@ -1,0 +1,9 @@
+{
+  settings(name: "Test_app_2SiteBranding") {
+    ...on Test_app_2SiteBranding {
+      id
+      siteSetting1
+      siteSetting2
+    }
+  }
+}

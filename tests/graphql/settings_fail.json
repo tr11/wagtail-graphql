@@ -1,0 +1,19 @@
+{
+  "data": {
+    "settings": null
+  },
+  "errors": [
+    {
+      "locations": [
+        {
+          "column": 3,
+          "line": 2
+        }
+      ],
+      "message": "Settings 'Test_app_2SiteBrandingMMMM' not found.",
+      "path": [
+        "settings"
+      ]
+    }
+  ]
+}

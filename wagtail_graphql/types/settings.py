@@ -21,7 +21,7 @@ def SettingsQueryMixin():
 
             def resolve_settings(self, _info: ResolveInfo, name):
                 try:
-                    result = registry.settings[name].objects.first()
+                    result = registry.settings[name][1].objects.first()
                 except KeyError:
                     raise ValueError(f"Settings '{name}' not found.")
                 return result

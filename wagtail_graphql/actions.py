@@ -2,7 +2,7 @@
 import string
 from typing import Type, Set
 # django
-from django.utils.text import capfirst, camel_case_to_spaces
+from django.utils.text import camel_case_to_spaces
 # graphene
 import graphene
 from graphene.types.generic import GenericScalar
@@ -18,7 +18,7 @@ from wagtail.contrib.settings.models import BaseSetting
 # app
 from .registry import registry
 from .permissions import with_page_permissions
-from .settings import url_prefix_for_site, settings_registry
+from .settings import url_prefix_for_site
 # app types
 from .types import (
     PageInterface,
@@ -29,6 +29,9 @@ from .types import (
 
 
 def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[graphene.Mutation]:
+    if node in registry.forms:
+        return registry.forms[node]
+
     registry.page_prefetch_fields.add(cls.__name__.lower())
     dict_params['Meta'].interfaces = (PageInterface,)
     dict_params['form_fields'] = graphene.List(FormField)
@@ -77,6 +80,8 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
 
 
 def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[DjangoObjectType]:
+    if cls in registry.pages:   # pragma: no cover
+        return registry.pages[cls]
     registry.page_prefetch_fields.add(cls.__name__.lower())
     dict_params['Meta'].interfaces = (PageInterface,)
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
@@ -85,13 +90,17 @@ def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[Djan
 
 
 def _add_setting(cls: Type[BaseSetting], node: str, dict_params: dict) -> Type[DjangoObjectType]:
+    if not hasattr(cls, 'name'):    # we always need a name field
+        cls.name = cls.__name__
     dict_params['Meta'].interfaces = (Settings,)
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
-    registry.settings[capfirst(cls._meta.verbose_name)] = cls
+    registry.settings[node] = (tp, cls)
     return tp
 
 
 def _add_snippet(cls: type, node: str, dict_params: dict) -> Type[DjangoObjectType]:
+    if cls in registry.snippets:   # pragma: no cover
+        return registry.snippets[cls]
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.snippets[cls] = tp
     registry.snippets_by_name[node] = tp
@@ -99,6 +108,8 @@ def _add_snippet(cls: type, node: str, dict_params: dict) -> Type[DjangoObjectTy
 
 
 def _add_django_model(_cls: type, node: str, dict_params: dict) -> Type[DjangoObjectType]:
+    if node in registry.django:   # pragma: no cover
+        return registry.django[node]
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.django[node] = tp
     return tp
@@ -172,6 +183,7 @@ def add_app(app: str, prefix: str = '{app}') -> None:
     snippets = get_snippet_models()
     models = [mdl.model_class()
               for mdl in ContentType.objects.filter(app_label=app).all()]
+    snippets = [s for s in snippets if s in models]
     to_register = [x for x in snippets + models if x is not None]
     registered: Set = set()
 
@@ -180,9 +192,6 @@ def add_app(app: str, prefix: str = '{app}') -> None:
 
 
 def add_apps_with_settings(settings: dict) -> None:
-    if settings_registry:
-        add_app('wagtail.contrib.settings')
-
     # standard page
     if wagtailPage not in registry.pages:
         _register_model(set(), wagtailPage, False, 'wagtailcore', '')
@@ -192,11 +201,11 @@ def add_apps_with_settings(settings: dict) -> None:
     for app in apps:
         prefixes = settings.get('PREFIX', {})
         if isinstance(prefixes, str):
-            prefix = prefixes
+            prefix = prefixes   # pragma: no cover
         else:
             prefix = prefixes.get(app, '{app}')
         add_app(app, prefix=prefix)
-    if not apps:
+    if not apps:   # pragma: no cover
         import logging
         logging.warning("No APPS specified for wagtail_graphql")
 

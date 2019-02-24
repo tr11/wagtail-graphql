@@ -18,7 +18,7 @@ from ..permissions import with_collection_permissions
 
 @convert_django_field.register(wagtailImage)
 def convert_image(field, _registry=None):
-    return Image(description=field.help_text, required=not field.null)
+    return Image(description=field.help_text, required=not field.null)      # pragma: no cover
 
 
 class Rect(graphene.ObjectType):

@@ -62,8 +62,6 @@ class PageInterface(graphene.Interface):
 
     @classmethod
     def resolve_type(cls, instance, info: ResolveInfo) -> 'PageInterface':
-        if isinstance(instance, int):
-            return registry.pages[type(wagtailPage.objects.filter(id=instance).specific().first())]
         try:
             model = registry.pages[instance.content_type.model_class()]
         except KeyError:  # pragma: no cover

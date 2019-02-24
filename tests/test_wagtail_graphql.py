@@ -65,7 +65,7 @@ def test_types(client):
         'DateTimeBlock',
         'TimeBlock',
         'Snippet',
-        'Test_app_2Advert',
+        'Test_app_1Advert',
         'MainMenuMaxLevels',
         'FlatMenuMaxLevels',
         'SecondaryMenuItem',
@@ -98,5 +98,6 @@ def test_types(client):
         'StringListBlock',
         'DateTimeListBlock',
         'Test_app_2App2SnippetListBlock',
-
+        'Settings',
+        'Test_app_2SiteBranding',
     }
