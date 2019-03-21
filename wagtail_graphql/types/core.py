@@ -57,15 +57,16 @@ class PageInterface(graphene.Interface):
     children = graphene.List(lambda *x: PageInterface)
 
     def resolve_content_type(self, _info: ResolveInfo):
-        self.content_type = cast(ContentType, self.content_type)
+        self.content_type = ContentType.objects.get_for_model(self)
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
 
     @classmethod
     def resolve_type(cls, instance, info: ResolveInfo) -> 'PageInterface':
+        mdl = ContentType.objects.get_for_model(instance).model_class()
         try:
-            model = registry.pages[instance.content_type.model_class()]
+            model = registry.pages[mdl]
         except KeyError:  # pragma: no cover
-            raise ValueError("Model %s is not a registered GraphQL type" % instance.content_type.model_class())
+            raise ValueError("Model %s is not a registered GraphQL type" % mdl)
         return model
 
     def resolve_url_path(self, info: ResolveInfo) -> str:
@@ -170,7 +171,7 @@ def PagesQueryMixin():  # noqa: C901
                 raise ValueError("One of 'id' or 'url' must be specified")
             page = with_page_permissions(
                 info.context,
-                query.select_related('content_type').specific()
+                query.specific()
             ).live().first()
 
             if page is None:

@@ -187,6 +187,9 @@ def add_app(app: str, prefix: str = '{app}') -> None:
     to_register = [x for x in snippets + models if x is not None]
     registered: Set = set()
 
+    # prefetch content_types
+    ContentType.objects.get_for_models(*to_register)
+
     for cls in to_register:
         _register_model(registered, cls, cls in snippets, app, prefix)
 

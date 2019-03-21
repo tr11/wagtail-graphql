@@ -18,7 +18,7 @@ def with_page_permissions(request: Any, queryset: PageQuerySet) -> PageQuerySet:
         queryset = queryset.descendant_of(request.site.root_page, inclusive=True)
     else:
         # No sites configured
-        return queryset.none()
+        return queryset.none()  # pragma: no cover
 
     # Get live pages that are public and check groups and login permissions
     if user == AnonymousUser:
