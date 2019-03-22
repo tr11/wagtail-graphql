@@ -23,7 +23,7 @@ from wagtail.core.fields import StreamField
 from ..registry import registry
 from .. import settings
 # app types
-from .core import PageInterface, wagtailPage
+from .core import Page, wagtailPage
 from .images import Image, wagtailImage
 
 # types
@@ -65,14 +65,14 @@ def _resolve_scalar(key, type_):
 
 
 def _page_block():
-    tp = registry.scalar_blocks.get(PageInterface)
+    tp = registry.scalar_blocks.get(Page)
     if not tp:
         node = 'PageBlock'
         tp = type(node, (graphene.ObjectType,), {
-            'value': graphene.Field(PageInterface),
+            'value': graphene.Field(Page),
             'field': graphene.Field(graphene.String),
         })
-        registry.scalar_blocks[PageInterface] = tp
+        registry.scalar_blocks[Page] = tp
     return tp
 
 
@@ -151,7 +151,7 @@ def _resolve_list_block(key, type_, of_type):
     elif of_type == Image:
         def resolve(self, info: ResolveInfo):
             return type_(value=list(_resolve_image(s, info) for s in self), field=key)
-    elif of_type == PageInterface:
+    elif of_type == Page:
         def resolve(self, info: ResolveInfo):
             return type_(value=list(_resolve_page(s, info) for s in self), field=key)
     elif of_type in registry.snippets.values():
@@ -173,7 +173,7 @@ def _create_root_blocks(block_type_handlers: dict):
         elif isinstance(t, tuple) and isinstance(t[0], List):
             typ = _list_block(t[0].of_type)
             block_type_handlers[k] = typ, _resolve_list_block(k, typ, t[0].of_type)
-        elif isinstance(t, tuple) and issubclass(t[0], PageInterface):
+        elif isinstance(t, tuple) and issubclass(t[0], Page):
             typ = _page_block()
             block_type_handlers[k] = typ, _resolve_page_block(k, typ)
         elif isinstance(t, tuple) and issubclass(t[0], Image):
@@ -435,7 +435,7 @@ def _resolve_list(tp, inner_resolver):
 registry.blocks.update({
     # choosers
     wagtail.images.blocks.ImageChooserBlock: (Image, _resolve_image),
-    wagtail.core.blocks.PageChooserBlock: (PageInterface, _resolve_page),
+    wagtail.core.blocks.PageChooserBlock: (Page, _resolve_page),
     wagtail.snippets.blocks.SnippetChooserBlock: (_snippet_handler, _resolve_snippet),
     # standard fields
     wagtail.core.blocks.CharBlock: graphene.types.String,

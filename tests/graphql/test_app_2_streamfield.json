@@ -161,7 +161,7 @@
           ]
         },
         {
-          "__typename": "PageInterfaceListBlock",
+          "__typename": "PageListBlock",
           "field": "page",
           "value": [
             {

@@ -21,7 +21,7 @@ from .permissions import with_page_permissions
 from .settings import url_prefix_for_site
 # app types
 from .types import (
-    PageInterface,
+    Page,
     Settings,
     FormError,
     FormField,
@@ -33,7 +33,7 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
         return registry.forms[node]
 
     registry.page_prefetch_fields.add(cls.__name__.lower())
-    dict_params['Meta'].interfaces = (PageInterface,)
+    dict_params['Meta'].interfaces = (Page,)
     dict_params['form_fields'] = graphene.List(FormField)
 
     def form_fields(self, _info):
@@ -83,7 +83,7 @@ def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[Djan
     if cls in registry.pages:   # pragma: no cover
         return registry.pages[cls]
     registry.page_prefetch_fields.add(cls.__name__.lower())
-    dict_params['Meta'].interfaces = (PageInterface,)
+    dict_params['Meta'].interfaces = (Page,)
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.pages[cls] = tp
     return tp
@@ -145,13 +145,13 @@ def _add_streamfields(cls: wagtailPage, node: str, dict_params: dict, app: str, 
 
 
 def _register_model(registered: Set[type], cls: type, snippet: bool,
-                    app: str, prefix: str) -> None:
+                    app: str, prefix: str, override_name=None) -> None:
     if cls in registered:
         return
 
     prefix = prefix.format(app=string.capwords(app),
                            cls=cls.__name__)
-    node = prefix + cls.__name__
+    node = override_name or prefix + cls.__name__
 
     # dict parameters to create GraphQL type
     class Meta:
@@ -197,7 +197,8 @@ def add_app(app: str, prefix: str = '{app}') -> None:
 def add_apps_with_settings(settings: dict) -> None:
     # standard page
     if wagtailPage not in registry.pages:
-        _register_model(set(), wagtailPage, False, 'wagtailcore', '')
+        _register_model(set(), wagtailPage, False, 'wagtailcore', '',
+                        override_name='BasePage')
 
     apps = settings.get('APPS', [])
 

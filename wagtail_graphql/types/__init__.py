@@ -1,6 +1,5 @@
 from .core import (
-    PageInterface,
-    PageLink,
+    Page,
     Site,
     User,
     # mixins
@@ -31,8 +30,7 @@ from . import converters    # noqa: F401
 
 __all__ = [
     # core
-    'PageInterface',
-    'PageLink',
+    'Page',
     'Settings',
     'Site',
     'User',

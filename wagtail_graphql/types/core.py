@@ -32,7 +32,7 @@ class Site(DjangoObjectType):
         model = wagtailSite
 
 
-class PageInterface(graphene.Interface):
+class Page(graphene.Interface):
     id = graphene.Int(required=True)
     title = graphene.String(required=True)
     url_path = graphene.String()
@@ -54,14 +54,14 @@ class PageInterface(graphene.Interface):
     draft_title = graphene.String()
     has_unpublished_changes = graphene.Boolean()
 
-    children = graphene.List(lambda *x: PageInterface)
+    children = graphene.List(lambda *x: Page)
 
     def resolve_content_type(self, _info: ResolveInfo):
         self.content_type = ContentType.objects.get_for_model(self)
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
 
     @classmethod
-    def resolve_type(cls, instance, info: ResolveInfo) -> 'PageInterface':
+    def resolve_type(cls, instance, info: ResolveInfo) -> 'Page':
         mdl = ContentType.objects.get_for_model(instance).model_class()
         try:
             model = registry.pages[mdl]
@@ -81,17 +81,6 @@ class PageInterface(graphene.Interface):
             info.context,
             query.specific()
         ).live().order_by('path').all()
-
-
-class PageLink(DjangoObjectType):
-    class Meta:
-        model = wagtailPage
-        interfaces = (PageInterface, )
-
-    def resolve_url_path(self: PageInterface, info: ResolveInfo) -> str:
-        url_prefix = url_prefix_for_site(info)
-        url = self.url_path if not self.url_path.startswith(url_prefix) else self.url_path[len(url_prefix):]
-        return url.rstrip('/')
 
 
 @convert_django_field.register(TaggableManager)
@@ -114,26 +103,19 @@ def _resolve_preview(request, view):  # pragma: no cover
 
 def PagesQueryMixin():  # noqa: C901
     class Mixin:
-        if registry.pages:
-            class _Page(graphene.types.union.Union):
-                class Meta:
-                    types = registry.pages.types
-            Page = _Page
-        else:  # pragma: no cover
-            Page = PageInterface
-
-        pages = graphene.List(PageInterface,
+        pages = graphene.List(Page,
                               parent=graphene.Int())
-        page = graphene.Field(PageInterface,
+
+        page = graphene.Field(Page,
                               id=graphene.Int(),
                               url=graphene.String(),
                               revision=graphene.Int(),
                               )
-        preview = graphene.Field(PageInterface,
+        preview = graphene.Field(Page,
                                  id=graphene.Int(required=True),
                                  )
 
-        preview_add = graphene.Field(PageInterface,
+        preview_add = graphene.Field(Page,
                                      app_name=graphene.String(),
                                      model_name=graphene.String(),
                                      parent=graphene.Int(required=True),
@@ -207,7 +189,7 @@ def PagesQueryMixin():  # noqa: C901
             return page
 
         # Show in Menu
-        show_in_menus = graphene.List(PageLink)
+        show_in_menus = graphene.List(Page)
 
         def resolve_show_in_menus(self, info: ResolveInfo):
             return with_page_permissions(

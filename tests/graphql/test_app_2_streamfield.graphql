@@ -181,7 +181,7 @@
           }
           field
         }
-        ... on PageInterfaceListBlock {
+        ... on PageListBlock {
           value {
             title
           }

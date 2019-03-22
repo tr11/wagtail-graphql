@@ -19,3 +19,4 @@ cover
 .idea
 poetry.lock
 htmlcov/
+pip-wheel-metadata

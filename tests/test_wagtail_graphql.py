@@ -22,10 +22,8 @@ def test_types(client):
     assert response.status_code == 200
     assert set(x['name'] for x in response.json()['data']['__schema']['types']) == {
         'Query',
-        'PageInterface',
         'Int',
         'String',
-        'PageLink',
         'Boolean',
         'User',
         'ID',
@@ -46,6 +44,7 @@ def test_types(client):
         '__DirectiveLocation',
         'Date',
         'Float',
+        'BasePage',
         'Page',
         'LoginMutation',
         'LogoutMutation',
@@ -91,7 +90,7 @@ def test_types(client):
         'FloatListBlock',
         'TimeListBlock',
         'DateListBlock',
-        'PageInterfaceListBlock',
+        'PageListBlock',
         'ImageListBlock',
         'Test_app_2PageTypeACustomListsType',
         'IntListBlock',
