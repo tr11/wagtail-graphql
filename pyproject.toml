@@ -23,12 +23,12 @@ python-dateutil = "^2.6"
 menus = ["wagtailmenus"]
 
 [tool.poetry.dev-dependencies]
-pytest = "^3.0"
+pytest = "^4.0"
 pytest-django = "^3.4"
 pytest-cov = "^2.6"
 flake8 = "^3.6"
 pytest-pythonpath = "^0.7.3"
-mypy = "^0.641.0"
+mypy = "^0.670.0"
 pytest-flake8 = "^1.0"
 pytest-mypy = "^0.3.2"
 django-cors-headers = "^2.4"
