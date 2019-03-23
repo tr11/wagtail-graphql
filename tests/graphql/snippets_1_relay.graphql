@@ -1,0 +1,10 @@
+query {
+  snippets(typename: "Test_app_1Advert") {
+    __typename
+    ... on Test_app_1Advert {
+      id
+      url
+      text
+    }
+  }
+}

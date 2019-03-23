@@ -185,5 +185,6 @@ GRAPHQL_API = {
     },
     'URL_PREFIX': {
 
-    }
+    },
+    'RELAY': False,
 }

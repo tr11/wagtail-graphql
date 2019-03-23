@@ -1,5 +1,7 @@
 import pytest
 from wagtail_graphql import __version__
+from django.conf import settings
+IS_RELAY = settings.GRAPHQL_API.get('RELAY', False)
 
 EXPECTED_VERSION = '0.2.0'
 EXPECTED_API_VERSION = '0.2.0'
@@ -20,7 +22,7 @@ def test_version_api(client):
 def test_types(client):
     response = client.post('/graphql', {"query": "{__schema { types { name } } }"})
     assert response.status_code == 200
-    assert set(x['name'] for x in response.json()['data']['__schema']['types']) == {
+    expected = {
         'Query',
         'Int',
         'String',
@@ -100,3 +102,14 @@ def test_types(client):
         'Settings',
         'Test_app_2SiteBranding',
     }
+    if IS_RELAY:
+        expected.update([
+            'PageEdge',
+            'Node',
+            'PageConnection',
+            'PageInfo',
+            'BasePageEdge',
+            'BasePageConnection'
+        ])
+
+    assert set(x['name'] for x in response.json()['data']['__schema']['types']) == expected

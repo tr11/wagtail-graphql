@@ -1,0 +1,368 @@
+{
+  "data": {
+    "page": {
+      "__typename": "Test_app_2PageTypeA",
+      "another": [
+        {
+          "__typename": "StringBlock",
+          "field": "h4",
+          "val": "and H4"
+        },
+        {
+          "__typename": "IntBlock",
+          "field": "n2",
+          "value": 1000
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "h3",
+          "val": "or H3"
+        }
+      ],
+      "contentType": "test_app_2.PageTypeA",
+      "custom": [
+        {
+          "__typename": "Test_app_2CustomBlock1",
+          "field": "custom1",
+          "fieldBool": true,
+          "fieldChar": "sdfsdh",
+          "fieldChoice": "coffee",
+          "fieldDate": "2019-01-02",
+          "fieldDatetime": "2019-01-08T16:00:00+00:00",
+          "fieldDecimal": "2323.23",
+          "fieldEmail": "dsfsdf@sdsdf.com",
+          "fieldFloat": 23324.21232,
+          "fieldInt": 324324,
+          "fieldList": [
+            "wwewer",
+            "dsfsdsdf"
+          ],
+          "fieldQuote": "jhdsfjksdhfjkdshf",
+          "fieldRaw": "<p>test</p>",
+          "fieldRegex": "234",
+          "fieldRich": "<p>ffdsdfgdfjg</p><h2>dsfsfsd</h2><h4>sdfhsd</h4>",
+          "fieldStatic": null,
+          "fieldText": "sdjhfsdkjfsdkjh",
+          "fieldTime": "20:00:00",
+          "fieldUrl": "http://www.google.com"
+        },
+        {
+          "__typename": "Test_app_2CustomBlock2",
+          "field": "custom2",
+          "fieldImage": {
+            "title": "wagtail logo with focal point"
+          },
+          "fieldImageList": [
+            {
+              "title": "wagtail logo with focal point",
+              "width": 200
+            },
+            {
+              "title": "wagtail logo",
+              "width": 200
+            }
+          ],
+          "fieldLink": {
+            "title": "Home"
+          },
+          "fieldLinkList": [
+            {
+              "title": "Home"
+            },
+            {
+              "title": "TEST"
+            }
+          ],
+          "fieldSnippet": {
+            "text": "sdjfkhdskjsdf"
+          },
+          "fieldSnippetList": [
+            {
+              "text": "sdjfkhdskjsdf"
+            },
+            {
+              "text": "09dfjklwf"
+            }
+          ]
+        }
+      ],
+      "customLists": [
+        {
+          "__typename": "Test_app_2CustomBlock1ListBlock",
+          "field": "custom1",
+          "value": [
+            {
+              "fieldChar": "dssdf",
+              "fieldDate": "2019-01-08",
+              "fieldDatetime": "2019-01-18T22:40:00+00:00",
+              "fieldDecimal": "23.232",
+              "fieldText": "ssdf",
+              "fieldTime": null
+            }
+          ]
+        }
+      ],
+      "depth": 3,
+      "draftTitle": "TEST",
+      "expireAt": null,
+      "expired": false,
+      "firstPublishedAt": "2019-01-05T06:32:37.170794+00:00",
+      "goLiveAt": null,
+      "hasUnpublishedChanges": false,
+      "id": "VGVzdF9hcHBfMlBhZ2VUeXBlQTo0",
+      "lastPublishedAt": "2019-01-06T06:40:49.336072+00:00",
+      "latestRevisionCreatedAt": "2019-01-06T06:40:49.268890+00:00",
+      "links": [
+        {
+          "__typename": "ImageBlock",
+          "field": "image",
+          "value": {
+            "title": "wagtail logo with focal point",
+            "width": 200
+          }
+        },
+        {
+          "__typename": "PageBlock",
+          "field": "page",
+          "value": {
+            "id": "VGVzdF9hcHBfMUhvbWVQYWdlOjM=",
+            "title": "Home"
+          }
+        },
+        {
+          "__typename": "Test_app_2App2SnippetBlock",
+          "field": "snippet",
+          "value": {
+            "text": "sdjfkhdskjsdf"
+          }
+        },
+        {
+          "__typename": "ImageBlock",
+          "field": "image",
+          "value": {
+            "title": "wagtail logo",
+            "width": 200
+          }
+        }
+      ],
+      "linksList": [
+        {
+          "__typename": "ImageListBlock",
+          "field": "image",
+          "value": [
+            {
+              "title": "wagtail logo with focal point",
+              "width": 200
+            },
+            {
+              "title": "wagtail logo",
+              "width": 200
+            }
+          ]
+        },
+        {
+          "__typename": "PageListBlock",
+          "field": "page",
+          "value": [
+            {
+              "title": "Home"
+            },
+            {
+              "title": "TEST"
+            }
+          ]
+        },
+        {
+          "__typename": "Test_app_2App2SnippetListBlock",
+          "field": "snippet",
+          "value": [
+            {
+              "text": "sdjfkhdskjsdf"
+            },
+            {
+              "text": "09dfjklwf"
+            }
+          ]
+        }
+      ],
+      "lists": [
+        {
+          "__typename": "StringListBlock",
+          "field": "char",
+          "value": [
+            "c1",
+            "c2"
+          ]
+        },
+        {
+          "__typename": "StringListBlock",
+          "field": "text",
+          "value": [
+            "t1",
+            "t2"
+          ]
+        },
+        {
+          "__typename": "IntListBlock",
+          "field": "int",
+          "valInt": [
+            3,
+            6
+          ]
+        },
+        {
+          "__typename": "FloatListBlock",
+          "field": "float",
+          "valFloat": [
+            3463.234,
+            4345.324
+          ]
+        },
+        {
+          "__typename": "StringListBlock",
+          "field": "decimal",
+          "value": [
+            "12.4"
+          ]
+        },
+        {
+          "__typename": "DateListBlock",
+          "field": "date",
+          "valDate": [
+            "2019-01-16",
+            "2019-01-28"
+          ]
+        },
+        {
+          "__typename": "TimeListBlock",
+          "field": "time",
+          "valTime": [
+            "20:00:00",
+            "23:00:00"
+          ]
+        },
+        {
+          "__typename": "DateTimeListBlock",
+          "field": "datetime",
+          "valDateTime": [
+            "2019-01-05T20:00:00+00:00",
+            "2019-01-08T19:00:00+00:00"
+          ]
+        }
+      ],
+      "live": true,
+      "locked": false,
+      "numchild": 0,
+      "path": "000100010001",
+      "revision": null,
+      "seoTitle": null,
+      "slug": "test",
+      "streamfield": [
+        {
+          "__typename": "StringBlock",
+          "field": "h1",
+          "val": "This is  H1"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "h2",
+          "val": "H2 Title"
+        },
+        {
+          "__typename": "IntBlock",
+          "field": "n1",
+          "value": 93
+        }
+      ],
+      "third": [
+        {
+          "__typename": "StringBlock",
+          "field": "char",
+          "valString": "asgdsahd"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "text",
+          "valString": "sdfsdfsdfsdf\r\nsdfsdffsdf"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "email",
+          "valString": "user@user.com"
+        },
+        {
+          "__typename": "IntBlock",
+          "field": "int",
+          "valInt": 234318
+        },
+        {
+          "__typename": "FloatBlock",
+          "field": "float",
+          "valFloat": 234234.43324
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "decimal",
+          "valString": "234234.324"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "regex",
+          "valString": "131"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "url",
+          "valString": "https://www.google.com"
+        },
+        {
+          "__typename": "BooleanBlock",
+          "field": "bool",
+          "valBool": true
+        },
+        {
+          "__typename": "DateBlock",
+          "field": "date",
+          "valDate": "2019-01-17"
+        },
+        {
+          "__typename": "TimeBlock",
+          "field": "time",
+          "valTime": "12:00:00"
+        },
+        {
+          "__typename": "DateTimeBlock",
+          "field": "datetime",
+          "valDatetime": "2019-01-24T13:00:00+00:00"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "rich",
+          "valString": "<h2>fdgfdfdg</h2><ol><li>f</li><li>d</li><li>e</li><li>w</li></ol><h4>2 <b>sdfsdfsdf</b></h4><p><a id=\"3\" linktype=\"page\">Home</a></p>"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "raw",
+          "valString": "<p>this is a paragraph</p>"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "quote",
+          "valString": "quote test"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "choice",
+          "valString": "tea"
+        },
+        {
+          "__typename": "StringBlock",
+          "field": "static",
+          "valString": null
+        }
+      ],
+      "title": "TEST",
+      "urlPath": "/test"
+    }
+  }
+}

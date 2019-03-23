@@ -1,0 +1,44 @@
+query {
+  page(id: 3, revision: 1) {
+    __typename
+    id
+    title
+    urlPath
+    contentType
+    slug
+    path
+    depth
+    seoTitle
+    numchild
+    revision
+    firstPublishedAt
+    lastPublishedAt
+    latestRevisionCreatedAt
+    live
+    goLiveAt
+    expireAt
+    expired
+    locked
+    draftTitle
+    hasUnpublishedChanges
+    ... on Test_app_1HomePage {
+      fieldChar
+      fieldInt
+      fieldBool
+      fieldDate
+      fieldDatetime
+      fieldUrl
+      fieldDecimal
+      fieldEmail
+      fieldFloat
+      fieldDuration
+      fieldIntp
+      fieldSmallintp
+      fieldSmallint
+      fieldText
+      fieldTime
+      fieldIp
+      fieldUuid
+    }
+  }
+}

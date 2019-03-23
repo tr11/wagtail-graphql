@@ -1,0 +1,18 @@
+{
+  "data": {
+    "pages": {
+      "edges": [
+        {
+          "node": {
+            "title": "Home"
+          }
+        },
+        {
+          "node": {
+            "title": "TEST"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "snippets": [
+      {
+        "__typename": "Test_app_1Advert",
+        "id": "VGVzdF9hcHBfMUFkdmVydDox",
+        "text": "TEST",
+        "url": "http://www.google.com"
+      },
+      {
+        "__typename": "Test_app_1Advert",
+        "id": "VGVzdF9hcHBfMUFkdmVydDoy",
+        "text": "ANOTHER",
+        "url": "http://www.google.com/something"
+      }
+    ]
+  }
+}

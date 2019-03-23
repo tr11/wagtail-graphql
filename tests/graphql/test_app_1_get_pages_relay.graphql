@@ -1,0 +1,9 @@
+{
+  pages {
+    edges {
+      node {
+        title
+      }
+    }
+  }
+}

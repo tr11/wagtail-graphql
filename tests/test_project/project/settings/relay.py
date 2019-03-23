@@ -12,4 +12,4 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
+GRAPHQL_API['RELAY'] = True
