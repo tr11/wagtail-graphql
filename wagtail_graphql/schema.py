@@ -9,6 +9,7 @@ import graphene
 # graphene_django
 from graphene_django.converter import String
 # app
+from .relay import RelayMixin
 from .registry import registry
 from .actions import add_apps
 # add all the apps from the settings
@@ -48,7 +49,8 @@ class Query(graphene.ObjectType,
             MenusQueryMixin_,
             PagesQueryMixin_,
             SettingsQueryMixin_,
-            SnippetsQueryMixin_
+            SnippetsQueryMixin_,
+            RelayMixin
             ):
     # API Version
     format = graphene.Field(String)

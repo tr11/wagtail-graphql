@@ -16,7 +16,7 @@ from wagtail.core.models import Page as wagtailPage, Site as wagtailSite
 from taggit.managers import TaggableManager
 from wagtail.core.utils import camelcase_to_underscore
 # app
-from ..settings import url_prefix_for_site
+from ..settings import url_prefix_for_site, RELAY
 from ..registry import registry
 from ..permissions import with_page_permissions
 
@@ -32,8 +32,12 @@ class Site(DjangoObjectType):
         model = wagtailSite
 
 
-class Page(graphene.Interface):
-    id = graphene.Int(required=True)
+interface_cls: graphene.Interface = graphene.relay.Node if RELAY else graphene.Interface
+
+
+class Page(interface_cls):
+    if not RELAY:   # use opaque ids in Relay
+        id = graphene.Int(required=True)
     title = graphene.String(required=True)
     url_path = graphene.String()
     content_type = graphene.String()
@@ -54,8 +58,6 @@ class Page(graphene.Interface):
     draft_title = graphene.String()
     has_unpublished_changes = graphene.Boolean()
 
-    children = graphene.List(lambda *x: Page)
-
     def resolve_content_type(self, _info: ResolveInfo):
         self.content_type = ContentType.objects.get_for_model(self)
         return self.content_type.app_label + '.' + self.content_type.model_class().__name__
@@ -75,7 +77,12 @@ class Page(graphene.Interface):
         url = self.url_path if not self.url_path.startswith(url_prefix) else self.url_path[len(url_prefix):]
         return url.rstrip('/')
 
-    def resolve_children(self, info: ResolveInfo):
+    if RELAY:
+        children = graphene.ConnectionField(lambda *x: PageConnection)
+    else:
+        children = graphene.List(lambda *x: Page)
+
+    def resolve_children(self, info: ResolveInfo, **_kwargs):
         query = wagtailPage.objects.child_of(self)
         return with_page_permissions(
             info.context,
@@ -101,10 +108,21 @@ def _resolve_preview(request, view):  # pragma: no cover
     return page
 
 
+if RELAY:
+    class PageConnection(graphene.relay.Connection):
+        class Meta:
+            node = Page
+
+        class Edge:
+            pass
+
+
 def PagesQueryMixin():  # noqa: C901
     class Mixin:
-        pages = graphene.List(Page,
-                              parent=graphene.Int())
+        if RELAY:
+            pages = graphene.ConnectionField(PageConnection)
+        else:
+            pages = graphene.List(Page, parent=graphene.Int())
 
         page = graphene.Field(Page,
                               id=graphene.Int(),
@@ -121,7 +139,7 @@ def PagesQueryMixin():  # noqa: C901
                                      parent=graphene.Int(required=True),
                                      )
 
-        def resolve_pages(self, info: ResolveInfo, parent: int = None):
+        def resolve_pages(self, info: ResolveInfo, parent: int = None, **_kwargs):
             query = wagtailPage.objects
 
             # prefetch specific type pages

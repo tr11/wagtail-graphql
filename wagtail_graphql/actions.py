@@ -18,7 +18,7 @@ from wagtail.contrib.settings.models import BaseSetting
 # app
 from .registry import registry
 from .permissions import with_page_permissions
-from .settings import url_prefix_for_site
+from .settings import url_prefix_for_site, RELAY
 # app types
 from .types import (
     Page,
@@ -33,7 +33,7 @@ def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[gra
         return registry.forms[node]
 
     registry.page_prefetch_fields.add(cls.__name__.lower())
-    dict_params['Meta'].interfaces = (Page,)
+    dict_params['Meta'].interfaces += (Page,)
     dict_params['form_fields'] = graphene.List(FormField)
 
     def form_fields(self, _info):
@@ -83,7 +83,7 @@ def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[Djan
     if cls in registry.pages:   # pragma: no cover
         return registry.pages[cls]
     registry.page_prefetch_fields.add(cls.__name__.lower())
-    dict_params['Meta'].interfaces = (Page,)
+    dict_params['Meta'].interfaces += (Page,)
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.pages[cls] = tp
     return tp
@@ -92,7 +92,7 @@ def _add_page(cls: Type[wagtailPage], node: str, dict_params: dict) -> Type[Djan
 def _add_setting(cls: Type[BaseSetting], node: str, dict_params: dict) -> Type[DjangoObjectType]:
     if not hasattr(cls, 'name'):    # we always need a name field
         cls.name = cls.__name__
-    dict_params['Meta'].interfaces = (Settings,)
+    dict_params['Meta'].interfaces += (Settings,)
     tp = type(node, (DjangoObjectType,), dict_params)  # type: Type[DjangoObjectType]
     registry.settings[node] = (tp, cls)
     return tp
@@ -156,7 +156,7 @@ def _register_model(registered: Set[type], cls: type, snippet: bool,
     # dict parameters to create GraphQL type
     class Meta:
         model = cls
-        interfaces = tuple()  # type: tuple
+        interfaces = (graphene.relay.Node, ) if RELAY else tuple()
 
     dict_params = {'Meta': Meta}
 
@@ -195,11 +195,6 @@ def add_app(app: str, prefix: str = '{app}') -> None:
 
 
 def add_apps_with_settings(settings: dict) -> None:
-    # standard page
-    if wagtailPage not in registry.pages:
-        _register_model(set(), wagtailPage, False, 'wagtailcore', '',
-                        override_name='BasePage')
-
     apps = settings.get('APPS', [])
 
     for app in apps:
@@ -217,3 +212,7 @@ def add_apps_with_settings(settings: dict) -> None:
 def add_apps() -> None:
     from .settings import SETTINGS
     add_apps_with_settings(SETTINGS)
+
+
+# standard page
+_register_model(set(), wagtailPage, False, 'wagtailcore', '', override_name='BasePage')
