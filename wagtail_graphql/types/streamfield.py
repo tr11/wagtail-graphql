@@ -328,7 +328,7 @@ def _snippet_handler(block):
 
 
 def _resolve_snippet(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     id_ = self if isinstance(self, int) else getattr(self, field)
@@ -341,7 +341,7 @@ def _resolve_snippet(self, info: ResolveInfo):
 
 
 def _resolve_image(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     id_ = self if isinstance(self, int) else getattr(self, field)
@@ -349,7 +349,7 @@ def _resolve_image(self, info: ResolveInfo):
 
 
 def _resolve_page(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     id_ = self if isinstance(self, int) else getattr(self, field)
@@ -357,7 +357,7 @@ def _resolve_page(self, info: ResolveInfo):
 
 
 def _resolve(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     data = getattr(self, field)
@@ -366,7 +366,7 @@ def _resolve(self, info: ResolveInfo):
 
 
 def _resolve_datetime(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     data = getattr(self, field)
@@ -374,7 +374,7 @@ def _resolve_datetime(self, info: ResolveInfo):
 
 
 def _resolve_time(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     data = getattr(self, field)
@@ -383,7 +383,7 @@ def _resolve_time(self, info: ResolveInfo):
 
 def _resolve_custom(block, hdl):
     def _inner(self, info: ResolveInfo):
-        if self is None:
+        if self is None:    # pragma: no cover
             return None
         cls = info.return_type
         if isinstance(self, dict):
@@ -399,7 +399,7 @@ def _resolve_custom(block, hdl):
 
 
 def _resolve_generic_scalar(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     data = getattr(self, info.field_name)
     cls = info.return_type
@@ -407,7 +407,7 @@ def _resolve_generic_scalar(self, info: ResolveInfo):
 
 
 def _resolve_simple_list(self, info: ResolveInfo):
-    if self is None:
+    if self is None:    # pragma: no cover
         return None
     field = to_snake_case(info.field_name)
     data = getattr(self, field)
@@ -419,7 +419,7 @@ def _resolve_simple_list(self, info: ResolveInfo):
 
 def _resolve_list(tp, inner_resolver):
     def resolve(self, info: ResolveInfo):
-        if self is None:
+        if self is None:    # pragma: no cover
             return None
         field = to_snake_case(info.field_name)
         ids = getattr(self, field)
