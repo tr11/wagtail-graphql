@@ -7,6 +7,18 @@
           "path": "000100010001",
           "title": "TEST",
           "urlPath": "/test"
+        },
+        {
+          "id": 5,
+          "path": "000100010002",
+          "title": "Blank Page",
+          "urlPath": "/blank-page"
+        },
+        {
+          "id": 6,
+          "path": "000100010003",
+          "title": "Form",
+          "urlPath": "/form"
         }
       ]
     }

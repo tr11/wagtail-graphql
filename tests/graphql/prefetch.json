@@ -6,6 +6,12 @@
       },
       {
         "contentType": "test_app_2.PageTypeA"
+      },
+      {
+        "contentType": "test_app_1.HomePage"
+      },
+      {
+        "contentType": "test_app_1.FormPage"
       }
     ]
   }

@@ -21,6 +21,17 @@ class SiteBranding(BaseSetting):
     ]
 
 
+@register_setting
+class AnotherSetting(BaseSetting):
+    name = models.TextField()
+    setting = models.TextField()
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('setting'),
+    ]
+
+
 @register_snippet
 class App2Snippet(models.Model):
     text = models.CharField(max_length=255)

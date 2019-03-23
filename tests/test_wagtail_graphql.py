@@ -101,6 +101,13 @@ def test_types(client):
         'Test_app_2App2SnippetListBlock',
         'Settings',
         'Test_app_2SiteBranding',
+        'FormFieldFieldType',
+        'FormField',
+        'FormError',
+        'Test_app_1FormPage',
+        'Test_app_1FormField',
+        'Test_app_1FormPageMutation',
+        'Test_app_2AnotherSetting',
     }
     if IS_RELAY:
         expected.update([

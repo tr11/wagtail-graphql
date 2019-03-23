@@ -256,7 +256,7 @@ def _is_custom_type(block):
 def _add_handler_resolves(dict_params):
     to_add = {}
     for k, v in dict_params.items():
-        if k == 'field':
+        if k == 'field':    # pragma: no cover
             raise ValueError("StructBlocks cannot have fields named 'field'")
         if isinstance(v, tuple):
             val = v[0]
@@ -274,10 +274,6 @@ def _add_handler_resolves(dict_params):
             val = v
         dict_params[k] = graphene.Field(val)
     dict_params.update(to_add)
-
-
-def _class_full_name(cls):
-    return cls.__module__ + "." + cls.__qualname__
 
 
 def block_handler(block: Block, app, prefix=''):

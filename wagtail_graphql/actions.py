@@ -29,7 +29,7 @@ from .types import (
 
 
 def _add_form(cls: Type[AbstractForm], node: str, dict_params: dict) -> Type[graphene.Mutation]:
-    if node in registry.forms:
+    if node in registry.forms:  # pragma: no cover
         return registry.forms[node]
 
     registry.page_prefetch_fields.add(cls.__name__.lower())
